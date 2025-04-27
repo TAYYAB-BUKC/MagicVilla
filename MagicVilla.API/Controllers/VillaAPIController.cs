@@ -17,10 +17,11 @@ namespace MagicVilla.API.Controllers
 		}
 
 		[HttpGet("{id}")]
-		[ProducesResponseType(200)]
+		//[ProducesResponseType(200)]
+		[ProducesResponseType(200, Type = typeof(VillaDTO))]
 		[ProducesResponseType(400)]
 		[ProducesResponseType(404)]
-		public ActionResult<VillaDTO> GetVilla(int id)
+		public ActionResult GetVilla(int id)
 		{
 			if (id == 0)
 			{
