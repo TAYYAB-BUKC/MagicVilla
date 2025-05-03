@@ -47,6 +47,10 @@ namespace MagicVilla.API.Controllers
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public ActionResult CreateVilla([FromBody] VillaDTO villa)
 		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
 			if (villa is null)
 			{
 				return BadRequest(villa);
@@ -57,7 +61,7 @@ namespace MagicVilla.API.Controllers
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
 
-			villa.Id = (VillaStore.VillaList.OrderByDescending(v => v.Id).FirstOrDefault()).Id + 1;	
+			villa.Id = (VillaStore.VillaList.OrderByDescending(v => v.Id).FirstOrDefault()).Id + 1;
 			VillaStore.VillaList.Add(villa);
 
 			return CreatedAtRoute("GetVilla", new { id = villa.Id }, villa);
