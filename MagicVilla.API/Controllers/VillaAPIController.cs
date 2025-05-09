@@ -112,7 +112,8 @@ namespace MagicVilla.API.Controllers
 				return NotFound();
 			}
 			oldVilla.Name = villa.Name;
-			
+			oldVilla.Occupancy = villa.Occupancy;
+			oldVilla.SqFt = villa.SqFt;
 			return NoContent();
 		}
 
