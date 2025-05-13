@@ -44,9 +44,11 @@ namespace MagicVilla.API.Controllers
 			var villa = VillaStore.VillaList.Find(v => v.Id == id);
 			if(villa is null)
 			{
+				_logger.LogInformation($"Villa not found of Id: {id}.");
 				return NotFound();
 			}
 
+			_logger.LogInformation($"Villa fetched by user with Id: {id}.");
 			return Ok(villa);
 		}
 
