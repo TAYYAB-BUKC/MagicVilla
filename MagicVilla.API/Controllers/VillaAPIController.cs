@@ -60,28 +60,33 @@ namespace MagicVilla.API.Controllers
 		{
 			if (!ModelState.IsValid)
 			{
+				_logger.LogError($"User made the bad request as model state is not valid.");
 				return BadRequest(ModelState);
 			}
 			
 			if(VillaStore.VillaList.FirstOrDefault( v=> v.Name.ToLower() == villa.Name.ToLower()) is not null)
 			{
+				_logger.LogError($"User made the bad request with Name: {villa.Name} because Villa already exists.");
 				ModelState.AddModelError("CustomError", "Villa already exists!");
 				return BadRequest(ModelState);
 			}
 
 			if (villa is null)
 			{
+				_logger.LogError($"User made the bad request with null villa object.");
 				return BadRequest(villa);
 			}
 
 			if (villa.Id > 0)
 			{
+				_logger.LogError($"User made the bad request with providing the villa Id on Create endpoint and Id id {villa.Id}.");
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
 
 			villa.Id = (VillaStore.VillaList.OrderByDescending(v => v.Id).FirstOrDefault()).Id + 1;
 			VillaStore.VillaList.Add(villa);
 
+			_logger.LogInformation($"Villa created by user of Id: {villa.Id}.");
 			return CreatedAtRoute("GetVilla", new { id = villa.Id }, villa);
 		}
 
