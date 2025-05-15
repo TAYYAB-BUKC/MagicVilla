@@ -98,15 +98,19 @@ namespace MagicVilla.API.Controllers
 		{
 			if (id <= 0)
 			{
+				_logger.LogError($"User made the bad request with providing this Id: {id}");
 				return BadRequest();
 			}
 
 			var villa = VillaStore.VillaList.FirstOrDefault(v => v.Id == id);
 			if (villa is null)
 			{
+				_logger.LogError($"User made the bad request as villa not found with the provided Id: {id}");
 				return NotFound();
 			}
+			
 			VillaStore.VillaList.Remove(villa);
+			_logger.LogInformation($"Villa removed by user of Id: {id}.");
 			return NoContent();
 		}
 
