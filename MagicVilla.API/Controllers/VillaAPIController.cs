@@ -21,7 +21,7 @@ namespace MagicVilla.API.Controllers
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public ActionResult<IEnumerable<VillaDTO>> GetVillas()
 		{
-			_logger.LogInformation("Returning all the villas.");
+			_logger.LogInformation("User fetched the list of villas.");
 			return VillaStore.VillaList;
 		}
 
@@ -79,7 +79,7 @@ namespace MagicVilla.API.Controllers
 
 			if (villa.Id > 0)
 			{
-				_logger.LogError($"User made the bad request with providing the villa Id on Create endpoint and Id id {villa.Id}.");
+				_logger.LogError($"User made the bad request by providing the villa Id on Create endpoint and Id is {villa.Id}.");
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
 
@@ -98,7 +98,7 @@ namespace MagicVilla.API.Controllers
 		{
 			if (id <= 0)
 			{
-				_logger.LogError($"User made the bad request with providing this Id: {id}");
+				_logger.LogError($"User made the bad request by providing this Id: {id}");
 				return BadRequest();
 			}
 
