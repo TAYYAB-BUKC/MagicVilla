@@ -123,19 +123,21 @@ namespace MagicVilla.API.Controllers
 		{
 			if (villa is null || id != villa.Id)
 			{
+				_logger.LogError($"User made the bad request by providing the invalid villa: {villa} and id: {id}.");
 				return BadRequest();
 			}
 
 			var oldVilla = VillaStore.VillaList.FirstOrDefault(v => v.Id == id);
 			if (oldVilla is null)
 			{
+				_logger.LogError($"Villa not found with Id: {id}.");
 				return NotFound();
 			}
 			oldVilla.Name = villa.Name;
 			oldVilla.Occupancy = villa.Occupancy;
 			oldVilla.SqFt = villa.SqFt;
+			_logger.LogInformation($"Villa updated by user of Id: {id}.");
 			return NoContent();
 		}
-
 	}
 }
