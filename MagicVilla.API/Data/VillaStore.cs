@@ -9,5 +9,10 @@ namespace MagicVilla.API.Data
 			new VillaDTO { Id = 1, Name = "Pool Villa", Occupancy = 100, SqFt = 10000 },
 			new VillaDTO { Id = 2, Name = "Pool Villa", Occupancy = 250, SqFt = 20000 }
 		};
+
+		public static VillaDTO? GetVilla(int id)
+		{
+			return VillaStore.VillaList.Find(v => v.Id == id);
+		}
 	}
 }
