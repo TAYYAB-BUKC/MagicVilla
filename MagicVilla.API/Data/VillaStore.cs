@@ -20,5 +20,11 @@ namespace MagicVilla.API.Data
 		{
 			return VillaStore.VillaList.FirstOrDefault(v => v?.Name?.ToLower() == name.ToLower());
 		}
+
+		public static void AddVilla(VillaDTO villa)
+		{
+			villa.Id = (VillaStore.VillaList.OrderByDescending(v => v.Id).FirstOrDefault()).Id + 1;
+			VillaStore.VillaList.Add(villa);
+		}
 	}
 }
