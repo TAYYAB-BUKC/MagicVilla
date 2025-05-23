@@ -1,4 +1,5 @@
-﻿using MagicVilla.API.Models.DTOs;
+﻿using MagicVilla.API.Models;
+using MagicVilla.API.Models.DTOs;
 
 namespace MagicVilla.API.Data
 {
@@ -13,6 +14,11 @@ namespace MagicVilla.API.Data
 		public static VillaDTO? GetVilla(int id)
 		{
 			return VillaStore.VillaList.Find(v => v.Id == id);
+		}
+
+		public static VillaDTO? CheckExistingVillaByName(string name)
+		{
+			return VillaStore.VillaList.FirstOrDefault(v => v?.Name?.ToLower() == name.ToLower());
 		}
 	}
 }
