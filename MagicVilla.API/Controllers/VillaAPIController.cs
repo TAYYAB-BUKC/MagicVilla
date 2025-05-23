@@ -77,8 +77,7 @@ namespace MagicVilla.API.Controllers
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
 
-			villa.Id = (VillaStore.VillaList.OrderByDescending(v => v.Id).FirstOrDefault()).Id + 1;
-			VillaStore.VillaList.Add(villa);
+			VillaStore.AddVilla(villa);
 
 			_logger.LogInformation($"Villa created by user of Id: {villa.Id}.");
 			return CreatedAtRoute("GetVilla", new { id = villa.Id }, villa);
