@@ -95,7 +95,7 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var villa = VillaStore.VillaList.FirstOrDefault(v => v.Id == id);
+			var villa = VillaStore.GetVilla(id);
 			if (villa is null)
 			{
 				_logger.LogError($"User made the bad request as villa not found with the provided Id: {id}");
