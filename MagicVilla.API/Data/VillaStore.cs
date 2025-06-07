@@ -26,5 +26,10 @@ namespace MagicVilla.API.Data
 			villa.Id = (VillaStore.VillaList.OrderByDescending(v => v.Id).FirstOrDefault()).Id + 1;
 			VillaStore.VillaList.Add(villa);
 		}
+
+		public static void DeleteVilla(VillaDTO villa)
+		{
+			VillaStore.VillaList.Remove(villa);
+		}
 	}
 }
