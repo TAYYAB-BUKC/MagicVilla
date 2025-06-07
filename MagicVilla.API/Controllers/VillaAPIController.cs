@@ -102,8 +102,8 @@ namespace MagicVilla.API.Controllers
 				_logger.LogError($"User made the bad request as villa not found with the provided Id: {id}");
 				return NotFound();
 			}
-			
-			VillaStore.VillaList.Remove(villa);
+
+			VillaStore.DeleteVilla(villa);
 			_logger.LogInformation($"Villa removed by user of Id: {id}.");
 			return NoContent();
 		}
