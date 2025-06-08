@@ -121,15 +121,14 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var oldVilla = VillaStore.VillaList.FirstOrDefault(v => v.Id == id);
+			var oldVilla = VillaStore.GetVilla(id);
 			if (oldVilla is null)
 			{
 				_logger.LogError($"Villa not found with Id: {id}.");
 				return NotFound();
 			}
-			oldVilla.Name = villa.Name;
-			oldVilla.Occupancy = villa.Occupancy;
-			oldVilla.SqFt = villa.SqFt;
+
+			VillaStore.UpdateVilla(oldVilla, villa);
 			_logger.LogInformation($"Villa updated by user of Id: {id}.");
 			return NoContent();
 		}
