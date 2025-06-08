@@ -144,7 +144,7 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var oldVilla = VillaStore.VillaList.FirstOrDefault(v => v.Id == id);
+			var oldVilla = VillaStore.GetVilla(id);
 			if (oldVilla is null)
 			{
 				return NotFound();
