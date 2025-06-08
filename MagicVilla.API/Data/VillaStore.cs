@@ -31,5 +31,12 @@ namespace MagicVilla.API.Data
 		{
 			VillaStore.VillaList.Remove(villa);
 		}
+
+		internal static void UpdateVilla(VillaDTO oldVilla, VillaDTO newVilla)
+		{
+			oldVilla.Name = newVilla.Name;
+			oldVilla.Occupancy = newVilla.Occupancy;
+			oldVilla.SqFt = newVilla.SqFt;
+		}
 	}
 }
