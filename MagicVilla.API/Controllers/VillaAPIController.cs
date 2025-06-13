@@ -29,7 +29,6 @@ namespace MagicVilla.API.Controllers
 		{
 			_logger.LogInformation("User fetched the list of villas.");
 			_customLogger.Log("User fetched the list of villas.", "information");
-			//return VillaStore.VillaList;
 			return Ok(_dbContext.Villas.ToList());
 		}
 
@@ -46,7 +45,7 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var villa = _dbContext.Villas.FirstOrDefault(v => v.Id == id);//VillaStore.GetVilla(id);
+			var villa = _dbContext.Villas.FirstOrDefault(v => v.Id == id);
 			if (villa is null)
 			{
 				_logger.LogInformation($"Villa not found of Id: {id}.");
@@ -69,7 +68,6 @@ namespace MagicVilla.API.Controllers
 				return BadRequest(ModelState);
 			}
 
-			//if(VillaStore.CheckExistingVillaByName(villa.Name) is not null)
 			if (_dbContext.Villas.FirstOrDefault(v => v.Name == villa.Name) is not null)
 			{ 
 				_logger.LogError($"User made the bad request with Name: {villa.Name} because Villa already exists.");
@@ -89,7 +87,6 @@ namespace MagicVilla.API.Controllers
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
 
-			//VillaStore.AddVilla(villa);
 			var newVilla = new Villa()
 			{
 				Id = villa.Id,
@@ -121,14 +118,13 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var villa = _dbContext.Villas.FirstOrDefault(v => v.Id == id);//VillaStore.GetVilla(id);
+			var villa = _dbContext.Villas.FirstOrDefault(v => v.Id == id);
 			if (villa is null)
 			{
 				_logger.LogError($"User made the bad request as villa not found with the provided Id: {id}");
 				return NotFound();
 			}
 
-			//VillaStore.DeleteVilla(villa);
 			_dbContext.Villas.Remove(villa);
 			_dbContext.SaveChangesAsync();
 			_logger.LogInformation($"Villa removed by user of Id: {id}.");
@@ -148,14 +144,13 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var oldVilla = _dbContext.Villas.FirstOrDefault(v => v.Id == id);//VillaStore.GetVilla(id);
+			var oldVilla = _dbContext.Villas.FirstOrDefault(v => v.Id == id);
 			if (oldVilla is null)
 			{
 				_logger.LogError($"Villa not found with Id: {id}.");
 				return NotFound();
 			}
 
-			//VillaStore.UpdateVilla(oldVilla, villa);
 			oldVilla.Id = villa.Id;
 			oldVilla.Name = villa.Name;
 			oldVilla.Details = villa.Details;
@@ -183,7 +178,7 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var villa = _dbContext.Villas.AsNoTracking().FirstOrDefault(v => v.Id == id);//VillaStore.GetVilla(id);
+			var villa = _dbContext.Villas.AsNoTracking().FirstOrDefault(v => v.Id == id);
 			if (villa is null)
 			{
 				return NotFound();
