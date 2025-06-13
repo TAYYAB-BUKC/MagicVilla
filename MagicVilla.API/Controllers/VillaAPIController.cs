@@ -183,13 +183,42 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var oldVilla = VillaStore.GetVilla(id);
-			if (oldVilla is null)
+			var villa = _dbContext.Villas.FirstOrDefault(v => v.Id == id);//VillaStore.GetVilla(id);
+			if (villa is null)
 			{
 				return NotFound();
 			}
 
-			document.ApplyTo(oldVilla, ModelState);
+			var oldVillaDTO = new VillaDTO()
+			{
+				Id = villa.Id,
+				Name = villa.Name,
+				Details = villa.Details,
+				Rate = villa.Rate,
+				Amenity = villa.Amenity,
+				ImageURL = villa.ImageURL,
+				Occupancy = villa.Occupancy,
+				SqFt = villa.SqFt,
+			};
+
+			document.ApplyTo(oldVillaDTO, ModelState);
+
+			var newVilla = new Villa()
+			{
+				Id = oldVillaDTO.Id,
+				Name = oldVillaDTO.Name,
+				Details = oldVillaDTO.Details,
+				Rate = oldVillaDTO.Rate,
+				Amenity = oldVillaDTO.Amenity,
+				ImageURL = oldVillaDTO.ImageURL,
+				Occupancy = oldVillaDTO.Occupancy,
+				SqFt = oldVillaDTO.SqFt,
+				UpdatedDate = DateTime.Now
+			};
+			
+			_dbContext.Villas.Update(newVilla);
+			_dbContext.SaveChangesAsync();
+
 			if (ModelState.IsValid)
 			{
 				return BadRequest(ModelState);
