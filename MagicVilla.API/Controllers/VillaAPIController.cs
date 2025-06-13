@@ -1,8 +1,10 @@
 ﻿using MagicVilla.API.Data;
 using MagicVilla.API.Logging;
+using MagicVilla.API.Models;
 using MagicVilla.API.Models.DTOs;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MagicVilla.API.Controllers
 {
@@ -12,11 +14,13 @@ namespace MagicVilla.API.Controllers
 	{
 		private ILogger<VillaAPIController> _logger;
 		private readonly ILogging _customLogger;
+		private readonly ApplicationDbContext _dbContext;
 
-		public VillaAPIController(ILogger<VillaAPIController> logger, ILogging customLogger)
+		public VillaAPIController(ILogger<VillaAPIController> logger, ILogging customLogger, ApplicationDbContext dbContext)
 		{
 			_logger = logger;
 			_customLogger = customLogger;
+			_dbContext = dbContext;
 		}
 
 		[HttpGet]
@@ -25,7 +29,8 @@ namespace MagicVilla.API.Controllers
 		{
 			_logger.LogInformation("User fetched the list of villas.");
 			_customLogger.Log("User fetched the list of villas.", "information");
-			return VillaStore.VillaList;
+			//return VillaStore.VillaList;
+			return Ok(_dbContext.Villas.ToList());
 		}
 
 		[HttpGet("{id}", Name = "GetVilla")]
@@ -41,7 +46,7 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var villa = VillaStore.GetVilla(id);
+			var villa = _dbContext.Villas.FirstOrDefault(v => v.Id == id);//VillaStore.GetVilla(id);
 			if (villa is null)
 			{
 				_logger.LogInformation($"Villa not found of Id: {id}.");
@@ -63,9 +68,10 @@ namespace MagicVilla.API.Controllers
 				_logger.LogError($"User made the bad request as model state is not valid.");
 				return BadRequest(ModelState);
 			}
-			
-			if(VillaStore.CheckExistingVillaByName(villa.Name) is not null)
-			{
+
+			//if(VillaStore.CheckExistingVillaByName(villa.Name) is not null)
+			if (_dbContext.Villas.FirstOrDefault(v => v.Name == villa.Name) is not null)
+			{ 
 				_logger.LogError($"User made the bad request with Name: {villa.Name} because Villa already exists.");
 				ModelState.AddModelError("CustomError", "Villa already exists!");
 				return BadRequest(ModelState);
@@ -83,8 +89,22 @@ namespace MagicVilla.API.Controllers
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
 
-			VillaStore.AddVilla(villa);
-
+			//VillaStore.AddVilla(villa);
+			var newVilla = new Villa()
+			{
+				Id = villa.Id,
+				Name = villa.Name,
+				Details = villa.Details,
+				Rate = villa.Rate,
+				Amenity = villa.Amenity,
+				ImageURL = villa.ImageURL,
+				Occupancy = villa.Occupancy,
+				SqFt = villa.SqFt,
+				CreatedDate = DateTime.Now,
+			};
+			
+			_dbContext.Villas.Add(newVilla);
+			_dbContext.SaveChangesAsync();
 			_logger.LogInformation($"Villa created by user of Id: {villa.Id}.");
 			return CreatedAtRoute("GetVilla", new { id = villa.Id }, villa);
 		}
