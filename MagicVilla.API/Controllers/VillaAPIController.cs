@@ -121,14 +121,16 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var villa = VillaStore.GetVilla(id);
+			var villa = _dbContext.Villas.FirstOrDefault(v => v.Id == id);//VillaStore.GetVilla(id);
 			if (villa is null)
 			{
 				_logger.LogError($"User made the bad request as villa not found with the provided Id: {id}");
 				return NotFound();
 			}
 
-			VillaStore.DeleteVilla(villa);
+			//VillaStore.DeleteVilla(villa);
+			_dbContext.Villas.Remove(villa);
+			_dbContext.SaveChangesAsync();
 			_logger.LogInformation($"Villa removed by user of Id: {id}.");
 			return NoContent();
 		}
