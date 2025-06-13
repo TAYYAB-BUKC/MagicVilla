@@ -4,7 +4,6 @@ using MagicVilla.API.Models;
 using MagicVilla.API.Models.DTOs;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MagicVilla.API.Controllers
 {
@@ -203,6 +202,11 @@ namespace MagicVilla.API.Controllers
 
 			document.ApplyTo(oldVillaDTO, ModelState);
 
+			if (ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
+
 			var newVilla = new Villa()
 			{
 				Id = oldVillaDTO.Id,
@@ -218,11 +222,7 @@ namespace MagicVilla.API.Controllers
 			
 			_dbContext.Villas.Update(newVilla);
 			_dbContext.SaveChangesAsync();
-
-			if (ModelState.IsValid)
-			{
-				return BadRequest(ModelState);
-			}
+			
 			return NoContent();
 		}
 	}
