@@ -148,14 +148,26 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var oldVilla = VillaStore.GetVilla(id);
+			var oldVilla = _dbContext.Villas.FirstOrDefault(v => v.Id == id);//VillaStore.GetVilla(id);
 			if (oldVilla is null)
 			{
 				_logger.LogError($"Villa not found with Id: {id}.");
 				return NotFound();
 			}
 
-			VillaStore.UpdateVilla(oldVilla, villa);
+			//VillaStore.UpdateVilla(oldVilla, villa);
+			oldVilla.Id = villa.Id;
+			oldVilla.Name = villa.Name;
+			oldVilla.Details = villa.Details;
+			oldVilla.Rate = villa.Rate;
+			oldVilla.Amenity = villa.Amenity;
+			oldVilla.ImageURL = villa.ImageURL;
+			oldVilla.Occupancy = villa.Occupancy;
+			oldVilla.SqFt = villa.SqFt;
+			oldVilla.UpdatedDate = DateTime.Now;
+			
+			_dbContext.Villas.Update(oldVilla);
+			_dbContext.SaveChangesAsync();
 			_logger.LogInformation($"Villa updated by user of Id: {id}.");
 			return NoContent();
 		}
