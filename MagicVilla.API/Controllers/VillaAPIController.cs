@@ -25,18 +25,18 @@ namespace MagicVilla.API.Controllers
 
 		[HttpGet]
 		[ProducesResponseType(StatusCodes.Status200OK)]
-		public ActionResult<IEnumerable<VillaDTO>> GetVillas()
+		public async Task<ActionResult<IEnumerable<VillaDTO>>> GetVillas()
 		{
 			_logger.LogInformation("User fetched the list of villas.");
 			_customLogger.Log("User fetched the list of villas.", "information");
-			return Ok(_dbContext.Villas.ToList());
+			return Ok(await _dbContext.Villas.ToListAsync());
 		}
 
 		[HttpGet("{id}", Name = "GetVilla")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public ActionResult GetVilla(int id)
+		public async Task<ActionResult> GetVilla(int id)
 		{
 			if (id == 0)
 			{
@@ -45,7 +45,7 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var villa = _dbContext.Villas.FirstOrDefault(v => v.Id == id);
+			var villa = await _dbContext.Villas.FirstOrDefaultAsync(v => v.Id == id);
 			if (villa is null)
 			{
 				_logger.LogInformation($"Villa not found of Id: {id}.");
@@ -60,7 +60,7 @@ namespace MagicVilla.API.Controllers
 		[ProducesResponseType(StatusCodes.Status201Created)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-		public ActionResult CreateVilla([FromBody] VillaCreateDTO villa)
+		public async Task<ActionResult> CreateVilla([FromBody] VillaCreateDTO villa)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -68,7 +68,7 @@ namespace MagicVilla.API.Controllers
 				return BadRequest(ModelState);
 			}
 
-			if (_dbContext.Villas.FirstOrDefault(v => v.Name == villa.Name) is not null)
+			if (await _dbContext.Villas.FirstOrDefaultAsync(v => v.Name == villa.Name) is not null)
 			{ 
 				_logger.LogError($"User made the bad request with Name: {villa.Name} because Villa already exists.");
 				ModelState.AddModelError("CustomError", "Villa already exists!");
@@ -92,9 +92,9 @@ namespace MagicVilla.API.Controllers
 				SqFt = villa.SqFt,
 				CreatedDate = DateTime.Now,
 			};
-			
-			_dbContext.Villas.Add(newVilla);
-			_dbContext.SaveChangesAsync();
+
+			await _dbContext.Villas.AddAsync(newVilla);
+			await _dbContext.SaveChangesAsync();
 			_logger.LogInformation($"Villa created by user of Id: {newVilla.Id}.");
 			return CreatedAtRoute("GetVilla", new { id = newVilla.Id }, newVilla);
 		}
@@ -103,7 +103,7 @@ namespace MagicVilla.API.Controllers
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public IActionResult DeleteVilla(int id)
+		public async Task<IActionResult> DeleteVilla(int id)
 		{
 			if (id <= 0)
 			{
@@ -111,7 +111,7 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var villa = _dbContext.Villas.FirstOrDefault(v => v.Id == id);
+			var villa = await _dbContext.Villas.FirstOrDefaultAsync(v => v.Id == id);
 			if (villa is null)
 			{
 				_logger.LogError($"User made the bad request as villa not found with the provided Id: {id}");
@@ -119,7 +119,7 @@ namespace MagicVilla.API.Controllers
 			}
 
 			_dbContext.Villas.Remove(villa);
-			_dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync();
 			_logger.LogInformation($"Villa removed by user of Id: {id}.");
 			return NoContent();
 		}
@@ -129,7 +129,7 @@ namespace MagicVilla.API.Controllers
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-		public ActionResult UpdateVilla(int id, [FromBody] VillaUpdateDTO villa)
+		public async Task<ActionResult> UpdateVilla(int id, [FromBody] VillaUpdateDTO villa)
 		{
 			if (villa is null || id != villa.Id)
 			{
@@ -137,7 +137,7 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var oldVilla = _dbContext.Villas.FirstOrDefault(v => v.Id == id);
+			var oldVilla = await _dbContext.Villas.FirstOrDefaultAsync(v => v.Id == id);
 			if (oldVilla is null)
 			{
 				_logger.LogError($"Villa not found with Id: {id}.");
@@ -153,9 +153,9 @@ namespace MagicVilla.API.Controllers
 			oldVilla.Occupancy = villa.Occupancy;
 			oldVilla.SqFt = villa.SqFt;
 			oldVilla.UpdatedDate = DateTime.Now;
-			
+
 			_dbContext.Villas.Update(oldVilla);
-			_dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync();
 			_logger.LogInformation($"Villa updated by user of Id: {id}.");
 			return NoContent();
 		}
@@ -164,14 +164,14 @@ namespace MagicVilla.API.Controllers
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public ActionResult UpdatePartialVilla(int id, JsonPatchDocument<VillaUpdateDTO> document)
+		public async Task<ActionResult> UpdatePartialVilla(int id, JsonPatchDocument<VillaUpdateDTO> document)
 		{
 			if (id == 0 || document is null)
 			{
 				return BadRequest();
 			}
 
-			var villa = _dbContext.Villas.AsNoTracking().FirstOrDefault(v => v.Id == id);
+			var villa = await _dbContext.Villas.AsNoTracking().FirstOrDefaultAsync(v => v.Id == id);
 			if (villa is null)
 			{
 				return NotFound();
@@ -210,7 +210,7 @@ namespace MagicVilla.API.Controllers
 			};
 			
 			_dbContext.Villas.Update(newVilla);
-			_dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync();
 			
 			return NoContent();
 		}
