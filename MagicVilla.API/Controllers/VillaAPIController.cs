@@ -1,4 +1,5 @@
-﻿using MagicVilla.API.Data;
+﻿using AutoMapper;
+using MagicVilla.API.Data;
 using MagicVilla.API.Logging;
 using MagicVilla.API.Models;
 using MagicVilla.API.Models.DTOs;
@@ -15,12 +16,14 @@ namespace MagicVilla.API.Controllers
 		private ILogger<VillaAPIController> _logger;
 		private readonly ILogging _customLogger;
 		private readonly ApplicationDbContext _dbContext;
+		private readonly IMapper _mapper;
 
-		public VillaAPIController(ILogger<VillaAPIController> logger, ILogging customLogger, ApplicationDbContext dbContext)
+		public VillaAPIController(ILogger<VillaAPIController> logger, ILogging customLogger, ApplicationDbContext dbContext, IMapper mapper)
 		{
 			_logger = logger;
 			_customLogger = customLogger;
 			_dbContext = dbContext;
+			_mapper = mapper;
 		}
 
 		[HttpGet]
@@ -29,7 +32,8 @@ namespace MagicVilla.API.Controllers
 		{
 			_logger.LogInformation("User fetched the list of villas.");
 			_customLogger.Log("User fetched the list of villas.", "information");
-			return Ok(await _dbContext.Villas.ToListAsync());
+			IEnumerable<Villa> villas = await _dbContext.Villas.ToListAsync();
+			return Ok(_mapper.Map<IEnumerable<Villa>, IEnumerable<VillaDTO>>(villas));
 		}
 
 		[HttpGet("{id}", Name = "GetVilla")]
@@ -53,7 +57,7 @@ namespace MagicVilla.API.Controllers
 			}
 
 			_logger.LogInformation($"Villa fetched by user with Id: {id}.");
-			return Ok(villa);
+			return Ok(_mapper.Map<VillaDTO>(villa));
 		}
 
 		[HttpPost]
@@ -81,18 +85,20 @@ namespace MagicVilla.API.Controllers
 				return BadRequest(villa);
 			}
 
-			var newVilla = new Villa()
-			{
-				Name = villa.Name,
-				Details = villa.Details,
-				Rate = villa.Rate,
-				Amenity = villa.Amenity,
-				ImageURL = villa.ImageURL,
-				Occupancy = villa.Occupancy,
-				SqFt = villa.SqFt,
-				CreatedDate = DateTime.Now,
-			};
+			//var newVilla = new Villa()
+			//{
+			//	Name = villa.Name,
+			//	Details = villa.Details,
+			//	Rate = villa.Rate,
+			//	Amenity = villa.Amenity,
+			//	ImageURL = villa.ImageURL,
+			//	Occupancy = villa.Occupancy,
+			//	SqFt = villa.SqFt,
+			//	CreatedDate = DateTime.Now,
+			//};
 
+			var newVilla = _mapper.Map<Villa>(villa);
+			newVilla.CreatedDate = DateTime.Now;
 			await _dbContext.Villas.AddAsync(newVilla);
 			await _dbContext.SaveChangesAsync();
 			_logger.LogInformation($"Villa created by user of Id: {newVilla.Id}.");
@@ -137,24 +143,26 @@ namespace MagicVilla.API.Controllers
 				return BadRequest();
 			}
 
-			var oldVilla = await _dbContext.Villas.FirstOrDefaultAsync(v => v.Id == id);
-			if (oldVilla is null)
+			if (await _dbContext.Villas.FirstOrDefaultAsync(v => v.Id == id) is null)
 			{
 				_logger.LogError($"Villa not found with Id: {id}.");
 				return NotFound();
 			}
 
-			oldVilla.Id = villa.Id;
-			oldVilla.Name = villa.Name;
-			oldVilla.Details = villa.Details;
-			oldVilla.Rate = villa.Rate;
-			oldVilla.Amenity = villa.Amenity;
-			oldVilla.ImageURL = villa.ImageURL;
-			oldVilla.Occupancy = villa.Occupancy;
-			oldVilla.SqFt = villa.SqFt;
-			oldVilla.UpdatedDate = DateTime.Now;
+			//oldVilla.Id = villa.Id;
+			//oldVilla.Name = villa.Name;
+			//oldVilla.Details = villa.Details;
+			//oldVilla.Rate = villa.Rate;
+			//oldVilla.Amenity = villa.Amenity;
+			//oldVilla.ImageURL = villa.ImageURL;
+			//oldVilla.Occupancy = villa.Occupancy;
+			//oldVilla.SqFt = villa.SqFt;
+			//oldVilla.UpdatedDate = DateTime.Now;
 
-			_dbContext.Villas.Update(oldVilla);
+			var newVilla = _mapper.Map<Villa>(villa);
+			newVilla.UpdatedDate = DateTime.Now;
+
+			_dbContext.Villas.Update(newVilla);
 			await _dbContext.SaveChangesAsync();
 			_logger.LogInformation($"Villa updated by user of Id: {id}.");
 			return NoContent();
@@ -177,17 +185,18 @@ namespace MagicVilla.API.Controllers
 				return NotFound();
 			}
 
-			var oldVillaDTO = new VillaUpdateDTO()
-			{
-				Id = villa.Id,
-				Name = villa.Name,
-				Details = villa.Details,
-				Rate = villa.Rate,
-				Amenity = villa.Amenity,
-				ImageURL = villa.ImageURL,
-				Occupancy = villa.Occupancy,
-				SqFt = villa.SqFt,
-			};
+			var oldVillaDTO = _mapper.Map<VillaUpdateDTO>(villa);
+			//var oldVillaDTO = new VillaUpdateDTO()
+			//{
+			//	Id = villa.Id,
+			//	Name = villa.Name,
+			//	Details = villa.Details,
+			//	Rate = villa.Rate,
+			//	Amenity = villa.Amenity,
+			//	ImageURL = villa.ImageURL,
+			//	Occupancy = villa.Occupancy,
+			//	SqFt = villa.SqFt,
+			//};
 
 			document.ApplyTo(oldVillaDTO, ModelState);
 
@@ -196,19 +205,22 @@ namespace MagicVilla.API.Controllers
 				return BadRequest(ModelState);
 			}
 
-			var newVilla = new Villa()
-			{
-				Id = oldVillaDTO.Id,
-				Name = oldVillaDTO.Name,
-				Details = oldVillaDTO.Details,
-				Rate = oldVillaDTO.Rate,
-				Amenity = oldVillaDTO.Amenity,
-				ImageURL = oldVillaDTO.ImageURL,
-				Occupancy = oldVillaDTO.Occupancy,
-				SqFt = oldVillaDTO.SqFt,
-				UpdatedDate = DateTime.Now
-			};
-			
+			//var newVilla = new Villa()
+			//{
+			//	Id = oldVillaDTO.Id,
+			//	Name = oldVillaDTO.Name,
+			//	Details = oldVillaDTO.Details,
+			//	Rate = oldVillaDTO.Rate,
+			//	Amenity = oldVillaDTO.Amenity,
+			//	ImageURL = oldVillaDTO.ImageURL,
+			//	Occupancy = oldVillaDTO.Occupancy,
+			//	SqFt = oldVillaDTO.SqFt,
+			//	UpdatedDate = DateTime.Now
+			//};
+
+			var newVilla = _mapper.Map<Villa>(oldVillaDTO);
+			newVilla.UpdatedDate = DateTime.Now;
+
 			_dbContext.Villas.Update(newVilla);
 			await _dbContext.SaveChangesAsync();
 			
