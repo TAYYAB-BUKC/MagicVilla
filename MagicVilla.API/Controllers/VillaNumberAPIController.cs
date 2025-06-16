@@ -13,14 +13,16 @@ namespace MagicVilla.API.Controllers
 	public class VillaNumberAPIController : ControllerBase
 	{
 		private readonly IVillaNumberRepository _villaNumberRepository;
+		private readonly IVillaRepository _villaRepository;
 		private readonly IMapper _mapper;
 		private readonly Response _response;
 
-		public VillaNumberAPIController(IVillaNumberRepository villaNumberRepository, IMapper mapper)
+		public VillaNumberAPIController(IVillaNumberRepository villaNumberRepository, IMapper mapper, IVillaRepository villaRepository)
 		{
 			_villaNumberRepository = villaNumberRepository;
 			_mapper = mapper;
 			_response = new();
+			_villaRepository = villaRepository;
 		}
 
 		[HttpGet]
@@ -107,6 +109,12 @@ namespace MagicVilla.API.Controllers
 					return BadRequest(ModelState);
 				}
 
+				if (await _villaRepository.GetAsync(v => v.Id == villaNumber.VillaID) is null)
+				{
+					ModelState.AddModelError("CustomError", "Villa does not exists!");
+					return BadRequest(ModelState);
+				}
+
 				var newVillaNumber = _mapper.Map<VillaNumber>(villaNumber);
 				newVillaNumber.CreatedDate = DateTime.Now;
 				await _villaNumberRepository.CreateAsync(newVillaNumber);
@@ -175,6 +183,12 @@ namespace MagicVilla.API.Controllers
 					return NotFound();
 				}
 
+				if (await _villaRepository.GetAsync(v => v.Id == villaNumber.VillaID) is null)
+				{
+					ModelState.AddModelError("CustomError", "Villa does not exists!");
+					return BadRequest(ModelState);
+				}
+
 				var newVillaNumber = _mapper.Map<VillaNumber>(villaNumber);
 				newVillaNumber.UpdatedDate = DateTime.Now;
 
@@ -216,6 +230,12 @@ namespace MagicVilla.API.Controllers
 
 				if (ModelState.IsValid)
 				{
+					return BadRequest(ModelState);
+				}
+
+				if (await _villaRepository.GetAsync(v => v.Id == villaNumber.VillaID) is null)
+				{
+					ModelState.AddModelError("CustomError", "Villa does not exists!");
 					return BadRequest(ModelState);
 				}
 
