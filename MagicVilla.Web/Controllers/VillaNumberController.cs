@@ -153,5 +153,61 @@ namespace MagicVilla.Web.Controllers
 
 			return View(villa);
 		}
+
+		public async Task<ActionResult> DeleteVillaNumber(int villaId)
+		{
+			VillaNumberDeleteVM viewModel = new();
+			var response = await _villaService.GetAsync<Response>(villaId);
+			if (response is not null && response.IsSuccess)
+			{
+				viewModel.VillaNumber = JsonConvert.DeserializeObject<VillaNumberDTO>(Convert.ToString(response.Data));
+				var villaResponse = await _villaService.GetAllAsync<Response>();
+				if (villaResponse is not null && villaResponse.IsSuccess)
+				{
+					viewModel.VillaList = JsonConvert.DeserializeObject<List<VillaDTO>>
+									  (Convert.ToString(villaResponse.Data)).Select(v => new SelectListItem
+									  {
+										  Text = v.Name,
+										  Value = Convert.ToString(v.Id)
+									  });
+					return View(viewModel);
+				}
+			}
+
+			return NotFound();
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> DeleteVillaNumber(VillaNumberDeleteVM villa)
+		{
+			var response = await _villaService.DeleteAsync<Response>(villa.VillaNumber.VillaNo);
+			if (response is not null && response.IsSuccess)
+			{
+				return RedirectToAction(nameof(IndexVillaNumber));
+			}
+			else
+			{
+				if (response.ErrorMessages.Any())
+				{
+					foreach (var errorMessage in response.ErrorMessages)
+					{
+						ModelState.AddModelError("ErrorMessages", errorMessage);
+					}
+				}
+			}
+			var villaResponse = await _villaService.GetAllAsync<Response>();
+			if (villaResponse is not null && villaResponse.IsSuccess)
+			{
+				villa.VillaList = JsonConvert.DeserializeObject<List<VillaDTO>>
+								  (Convert.ToString(villaResponse.Data)).Select(v => new SelectListItem
+								  {
+									  Text = v.Name,
+									  Value = Convert.ToString(v.Id)
+								  });
+			}
+
+			return View(villa);
+		}
 	}
 }
