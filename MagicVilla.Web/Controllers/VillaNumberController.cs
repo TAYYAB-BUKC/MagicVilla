@@ -6,7 +6,6 @@ using MagicVilla.Web.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
-using System.Reflection;
 
 namespace MagicVilla.Web.Controllers
 {
@@ -62,6 +61,7 @@ namespace MagicVilla.Web.Controllers
 				var response = await _villaNumberService.CreateAsync<Response>(villa.VillaNumber);
 				if (response is not null && response.IsSuccess)
 				{
+					TempData["Success"] = "VillaNumber created successfully";
 					return RedirectToAction(nameof(IndexVillaNumber));
 				}
 				else
@@ -87,7 +87,7 @@ namespace MagicVilla.Web.Controllers
 								  });
 			}
 
-
+			TempData["Error"] = "Something went wrong while creating VillaNumber.";
 			return View(villa);
 		}
 
@@ -125,6 +125,7 @@ namespace MagicVilla.Web.Controllers
 				var response = await _villaNumberService.UpdateAsync<Response>(villa.VillaNumber);
 				if (response is not null && response.IsSuccess)
 				{
+					TempData["Success"] = "VillaNumber updated successfully";
 					return RedirectToAction(nameof(IndexVillaNumber));
 				}
 				else
@@ -150,7 +151,7 @@ namespace MagicVilla.Web.Controllers
 								  });
 			}
 
-
+			TempData["Error"] = "Something went wrong while updating VillaNumber.";
 			return View(villa);
 		}
 
@@ -184,6 +185,7 @@ namespace MagicVilla.Web.Controllers
 			var response = await _villaNumberService.DeleteAsync<Response>(villa.VillaNumber.VillaNo);
 			if (response is not null && response.IsSuccess)
 			{
+				TempData["Success"] = "VillaNumber deleted successfully";
 				return RedirectToAction(nameof(IndexVillaNumber));
 			}
 			else
@@ -207,6 +209,7 @@ namespace MagicVilla.Web.Controllers
 								  });
 			}
 
+			TempData["Error"] = "Something went wrong while deleting VillaNumber.";
 			return View(villa);
 		}
 	}

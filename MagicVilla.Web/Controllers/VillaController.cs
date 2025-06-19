@@ -4,7 +4,6 @@ using MagicVilla.Web.Models.DTOs;
 using MagicVilla.Web.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace MagicVilla.Web.Controllers
 {
@@ -45,10 +44,12 @@ namespace MagicVilla.Web.Controllers
 				var response = await _villaService.CreateAsync<Response>(villa);
 				if (response is not null && response.IsSuccess)
 				{
+					TempData["Success"] = "Villa created successfully";
 					return RedirectToAction(nameof(IndexVilla));
 				}
 			}
-			
+
+			TempData["Error"] = "Something went wrong while creating Villa.";
 			return View(villa);
 		}
 
@@ -72,10 +73,12 @@ namespace MagicVilla.Web.Controllers
 				var response = await _villaService.UpdateAsync<Response>(villa);
 				if (response is not null && response.IsSuccess)
 				{
+					TempData["Success"] = "Villa updated successfully";
 					return RedirectToAction(nameof(IndexVilla));
 				}
 			}
 
+			TempData["Error"] = "Something went wrong while updating Villa.";
 			return View(villa);
 		}
 
@@ -97,9 +100,11 @@ namespace MagicVilla.Web.Controllers
 			var response = await _villaService.DeleteAsync<Response>(villa.Id);
 			if (response is not null && response.IsSuccess)
 			{
+				TempData["Success"] = "Villa deleted successfully.";
 				return RedirectToAction(nameof(IndexVilla));
 			}
 
+			TempData["Error"] = "Something went wrong while deleting Villa.";
 			return View(villa);
 		}
 	}
