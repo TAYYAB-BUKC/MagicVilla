@@ -111,7 +111,7 @@ namespace MagicVilla.API.Controllers
 				if (await _villaRepository.GetAsync(v => v.Name == villa.Name) is not null)
 				{
 					_logger.LogError($"User made the bad request with Name: {villa.Name} because Villa already exists.");
-					ModelState.AddModelError("CustomError", "Villa already exists!");
+					ModelState.AddModelError("ErrorMessages", "Villa already exists!");
 					return BadRequest(ModelState);
 				}
 
