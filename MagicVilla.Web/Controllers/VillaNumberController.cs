@@ -54,23 +54,31 @@ namespace MagicVilla.Web.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> CreateVillaNumber(VillaNumberCreateDTO villa)
+		public async Task<IActionResult> CreateVillaNumber(VillaNumberCreateVM villa)
 		{
 			if (ModelState.IsValid)
 			{
-				var response = await _villaNumberService.CreateAsync<Response>(villa);
+				var response = await _villaNumberService.CreateAsync<Response>(villa.VillaNumber);
 				if (response is not null && response.IsSuccess)
 				{
 					return RedirectToAction(nameof(IndexVillaNumber));
 				}
+				else
+				{
+					if (response.ErrorMessages.Any())
+					{
+						foreach (var errorMessage in response.ErrorMessages)
+						{
+							ModelState.AddModelError("ErrorMessages", errorMessage);
+						}
+					}
+				}
 			}
-
-			VillaNumberCreateVM model = new VillaNumberCreateVM();
 
 			var villaResponse = await _villaService.GetAllAsync<Response>();
 			if (villaResponse is not null && villaResponse.IsSuccess)
 			{
-				model.VillaList = JsonConvert.DeserializeObject<List<VillaDTO>>
+				villa.VillaList = JsonConvert.DeserializeObject<List<VillaDTO>>
 								  (Convert.ToString(villaResponse.Data)).Select(v => new SelectListItem
 								  {
 									  Text = v.Name,
@@ -79,7 +87,7 @@ namespace MagicVilla.Web.Controllers
 			}
 
 
-			return View(model);
+			return View(villa);
 		}
 	}
 }
