@@ -202,7 +202,7 @@ namespace MagicVilla.API.Controllers
 					return BadRequest();
 				}
 
-				if (await _villaRepository.GetAsync(v => v.Id == id) is null)
+				if (await _villaRepository.GetAsync(v => v.Id == id, tracked: false) is null)
 				{
 					_logger.LogError($"Villa not found with Id: {id}.");
 					return NotFound();
