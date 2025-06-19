@@ -91,10 +91,10 @@ namespace MagicVilla.Web.Controllers
 			return View(villa);
 		}
 
-		public async Task<ActionResult> UpdateVillaNumber(int villaId)
+		public async Task<ActionResult> UpdateVillaNumber(int villaNo)
 		{
 			VillaNumberUpdateVM viewModel = new();
-			var response = await _villaNumberService.GetAsync<Response>(villaId);
+			var response = await _villaNumberService.GetAsync<Response>(villaNo);
 			if (response is not null && response.IsSuccess)
 			{
 				var model = JsonConvert.DeserializeObject<VillaNumberDTO>(Convert.ToString(response.Data));

@@ -48,7 +48,7 @@ namespace MagicVilla.Web.Services
 			return await SendAsync<T>(new Request()
 			{
 				RequestType = RequestType.PUT,
-				URL = $"{BASE_URL}/api/VillaNumberAPI/{villa.VillaID}",
+				URL = $"{BASE_URL}/api/VillaNumberAPI/{villa.VillaNo}",
 				Data = villa
 			});
 		}

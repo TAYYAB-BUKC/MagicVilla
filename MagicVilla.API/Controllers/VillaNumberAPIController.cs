@@ -178,12 +178,12 @@ namespace MagicVilla.API.Controllers
 					return BadRequest();
 				}
 
-				if (await _villaNumberRepository.GetAsync(v => v.VillaNo == villaNo) is null)
+				if (await _villaNumberRepository.GetAsync(v => v.VillaNo == villaNo, tracked: false) is null)
 				{
 					return NotFound();
 				}
 
-				if (await _villaRepository.GetAsync(v => v.Id == villaNumber.VillaID) is null)
+				if (await _villaRepository.GetAsync(v => v.Id == villaNumber.VillaID, tracked: false) is null)
 				{
 					ModelState.AddModelError("ErrorMessages", "Villa does not exists!");
 					return BadRequest(ModelState);
