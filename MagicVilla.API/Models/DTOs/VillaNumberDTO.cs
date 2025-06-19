@@ -5,5 +5,6 @@
 		public int VillaNo { get; set; }
 		public int VillaID { get; set; }
 		public string? SpecialDetails { get; set; }
+		public Villa Villa { get; set; }
 	}
 }
