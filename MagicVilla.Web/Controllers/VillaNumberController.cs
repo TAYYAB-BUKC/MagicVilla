@@ -6,6 +6,7 @@ using MagicVilla.Web.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace MagicVilla.Web.Controllers
 {
@@ -59,6 +60,69 @@ namespace MagicVilla.Web.Controllers
 			if (ModelState.IsValid)
 			{
 				var response = await _villaNumberService.CreateAsync<Response>(villa.VillaNumber);
+				if (response is not null && response.IsSuccess)
+				{
+					return RedirectToAction(nameof(IndexVillaNumber));
+				}
+				else
+				{
+					if (response.ErrorMessages.Any())
+					{
+						foreach (var errorMessage in response.ErrorMessages)
+						{
+							ModelState.AddModelError("ErrorMessages", errorMessage);
+						}
+					}
+				}
+			}
+
+			var villaResponse = await _villaService.GetAllAsync<Response>();
+			if (villaResponse is not null && villaResponse.IsSuccess)
+			{
+				villa.VillaList = JsonConvert.DeserializeObject<List<VillaDTO>>
+								  (Convert.ToString(villaResponse.Data)).Select(v => new SelectListItem
+								  {
+									  Text = v.Name,
+									  Value = Convert.ToString(v.Id)
+								  });
+			}
+
+
+			return View(villa);
+		}
+
+		public async Task<ActionResult> UpdateVillaNumber(int villaId)
+		{
+			VillaNumberUpdateVM viewModel = new();
+			var response = await _villaNumberService.GetAsync<Response>(villaId);
+			if (response is not null && response.IsSuccess)
+			{
+				var model = JsonConvert.DeserializeObject<VillaNumberDTO>(Convert.ToString(response.Data));
+				viewModel.VillaNumber = _mapper.Map<VillaNumberUpdateDTO>(model);
+			}
+
+			var villaResponse = await _villaService.GetAllAsync<Response>();
+			if (villaResponse is not null && villaResponse.IsSuccess)
+			{
+				viewModel.VillaList = JsonConvert.DeserializeObject<List<VillaDTO>>
+								  (Convert.ToString(villaResponse.Data)).Select(v => new SelectListItem
+								  {
+									  Text = v.Name,
+									  Value = Convert.ToString(v.Id)
+								  });
+				return View(viewModel);
+			}
+
+			return NotFound();
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> UpdateVillaNumber(VillaNumberUpdateVM villa)
+		{
+			if (ModelState.IsValid)
+			{
+				var response = await _villaNumberService.UpdateAsync<Response>(villa.VillaNumber);
 				if (response is not null && response.IsSuccess)
 				{
 					return RedirectToAction(nameof(IndexVillaNumber));
