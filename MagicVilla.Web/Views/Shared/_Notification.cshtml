@@ -1,0 +1,27 @@
+﻿@if (TempData["Success"] is not null)
+{
+    <script type="text/javascript">
+        Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "@TempData["Success"]",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+    </script>
+}
+
+@if (TempData["Error"] is not null)
+{
+    <script type="text/javascript">
+        Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "@TempData["Error"]",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+    </script>
+}
