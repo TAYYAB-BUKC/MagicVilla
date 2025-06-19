@@ -65,7 +65,21 @@ namespace MagicVilla.Web.Controllers
 				}
 			}
 
-			return View(villa);
+			VillaNumberCreateVM model = new VillaNumberCreateVM();
+
+			var villaResponse = await _villaService.GetAllAsync<Response>();
+			if (villaResponse is not null && villaResponse.IsSuccess)
+			{
+				model.VillaList = JsonConvert.DeserializeObject<List<VillaDTO>>
+								  (Convert.ToString(villaResponse.Data)).Select(v => new SelectListItem
+								  {
+									  Text = v.Name,
+									  Value = Convert.ToString(v.Id)
+								  });
+			}
+
+
+			return View(model);
 		}
 	}
 }
