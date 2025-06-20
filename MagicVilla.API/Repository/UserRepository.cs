@@ -9,9 +9,11 @@ namespace MagicVilla.API.Repository
 	public class UserRepository : IUserRepository
 	{
 		private readonly ApplicationDbContext _dbContext;
-		public UserRepository(ApplicationDbContext dbContext)
+		public string? SecretKey { get; set; }
+		public UserRepository(ApplicationDbContext dbContext, IConfiguration configuration)
 		{
 			_dbContext = dbContext;
+			SecretKey = configuration.GetValue<string>("ApiSettings:SecretKey");
 		}
 
 		public async Task<bool> IsUserUnique(string username)
