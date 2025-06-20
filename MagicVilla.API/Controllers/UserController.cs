@@ -1,0 +1,58 @@
+﻿using MagicVilla.API.Models;
+using MagicVilla.API.Models.DTOs;
+using MagicVilla.API.Repository.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
+
+namespace MagicVilla.API.Controllers
+{
+	[Route("api/UserAuth")]
+	[ApiController]
+	public class UserController : ControllerBase
+	{
+		private readonly IUserRepository _userRepository;
+		private readonly Response _response;
+
+		public UserController(IUserRepository userRepository)
+		{
+			_userRepository = userRepository;
+			_response = new();
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> Login([FromBody] LoginRequestDTO requestDTO)
+		{
+			var response = await _userRepository.Login(requestDTO);
+			if (response.User is null || String.IsNullOrWhiteSpace(response.Token))
+			{
+				_response.StatusCode = HttpStatusCode.BadRequest;
+				_response.IsSuccess = false;
+				_response.ErrorMessages.Add("user not found");
+				return BadRequest(_response);
+			}
+
+			_response.StatusCode = HttpStatusCode.OK;
+			_response.IsSuccess = true;
+			_response.Data = response;
+			return Ok(_response);
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> Register([FromBody] RegistrationRequestDTO requestDTO)
+		{
+			var isUserUnique = await _userRepository.IsUserUnique(requestDTO.Username);
+			if(!isUserUnique)
+			{
+				_response.StatusCode = HttpStatusCode.BadRequest;
+				_response.IsSuccess = false;
+				_response.ErrorMessages.Add("username already exists");
+				return BadRequest(_response);
+			}
+
+			var response = await _userRepository.Regitser(requestDTO);
+			_response.StatusCode = HttpStatusCode.OK;
+			_response.IsSuccess = true;
+			return Ok(_response);
+		}
+	}
+}
