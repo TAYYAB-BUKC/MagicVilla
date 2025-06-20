@@ -3,6 +3,10 @@ using MagicVilla.API.Models;
 using MagicVilla.API.Models.DTOs;
 using MagicVilla.API.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace MagicVilla.API.Repository
 {
@@ -38,11 +42,28 @@ namespace MagicVilla.API.Repository
 				};
 			}
 
+			var tokenHandler = new JwtSecurityTokenHandler();
+			var key = Encoding.ASCII.GetBytes(SecretKey);
+
+			var tokenDescriptor = new SecurityTokenDescriptor
+			{
+				Subject = new ClaimsIdentity(new Claim[]
+				{
+					new Claim(ClaimTypes.Name , user.Username),
+					new Claim(ClaimTypes.NameIdentifier , user.Id.ToString()),
+					new Claim(ClaimTypes.Role, user.Role)
+				}),
+				Expires = DateTime.Now.AddMinutes(30),
+				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+			};
+
+			var token = tokenHandler.CreateToken(tokenDescriptor);
+
 			return new LoginResponseDTO()
 			{
-				Token = String.Empty, // Generate Token Using JWT
+				Token = tokenHandler.WriteToken(token),
 				User = user
-			};
+ 			};
 		}
 
 		public async Task<LocalUser> Regitser(RegistrationRequestDTO requestDTO)
