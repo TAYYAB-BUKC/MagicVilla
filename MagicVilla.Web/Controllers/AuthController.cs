@@ -50,7 +50,7 @@ namespace MagicVilla.Web.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Regitser(RegistrationRequestDTO request)
+		public async Task<IActionResult> Register(RegistrationRequestDTO request)
 		{
 			var response = await _authService.RegisterAsync<Response>(request);
 			if (response is not null && !response.IsSuccess)
