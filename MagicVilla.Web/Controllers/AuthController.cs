@@ -2,8 +2,10 @@
 using MagicVilla.Web.Models.DTOs;
 using MagicVilla.Web.Services.IServices;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Security.Claims;
 using static MagicVilla.Utility.Configuration;
 
 namespace MagicVilla.Web.Controllers
@@ -27,13 +29,21 @@ namespace MagicVilla.Web.Controllers
 		public async Task<IActionResult> Login(LoginRequestDTO request)
 		{
 			var response = await _authService.LoginAsync<Response>(request);
-			if(response is not null && !response.IsSuccess)
+			if(response is not null && response.IsSuccess)
 			{
 				var model = JsonConvert.DeserializeObject<LoginResponseDTO>(Convert.ToString(response.Data));
+				
 				HttpContext.Session.SetString(SessionToken, model.Token);
 				HttpContext.Session.SetString(SessionUserId, Convert.ToString(model.User.Id));
 				HttpContext.Session.SetString(SessionUserName, model.User.Name);
-				return RedirectToAction(nameof(Index), nameof(HomeController));
+
+				var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+				identity.AddClaim(new Claim(ClaimTypes.Name, model.User.Name));
+				identity.AddClaim(new Claim(ClaimTypes.Role, model.User.Role));
+				var principal = new ClaimsPrincipal(identity);
+				await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+				return RedirectToAction("Index", "Home");
 			}
 			foreach (var errorMessage in response.ErrorMessages)
 			{
@@ -66,7 +76,7 @@ namespace MagicVilla.Web.Controllers
 			HttpContext.Session.SetString(SessionToken, string.Empty);
 			HttpContext.Session.SetString(SessionUserId, string.Empty);
 			HttpContext.Session.SetString(SessionUserName, string.Empty);
-			return RedirectToAction(nameof(Index), nameof(HomeController));
+			return RedirectToAction("Index", "Home");
 		}
 
 		public IActionResult AccessDenied()
