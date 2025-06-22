@@ -1,8 +1,7 @@
-﻿namespace MagicVilla.Web.Models
+﻿namespace MagicVilla.Web.Models.DTOs
 {
-	public class LocalUser
+	public class RegistrationRequestDTO
 	{
-		public int Id { get; set; }
 		public required string Name { get; set; }
 		public required string Username { get; set; }
 		public required string Password { get; set; }
