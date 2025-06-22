@@ -160,6 +160,7 @@ namespace MagicVilla.Web.Controllers
 			return View(villa);
 		}
 
+		[Authorize(Roles = "admin")]
 		public async Task<ActionResult> DeleteVillaNumber(int villaNo)
 		{
 			VillaNumberDeleteVM viewModel = new();
