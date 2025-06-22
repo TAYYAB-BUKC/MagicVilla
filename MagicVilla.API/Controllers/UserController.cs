@@ -19,7 +19,7 @@ namespace MagicVilla.API.Controllers
 			_response = new();
 		}
 
-		[HttpPost]
+		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginRequestDTO requestDTO)
 		{
 			var response = await _userRepository.Login(requestDTO);
@@ -37,7 +37,7 @@ namespace MagicVilla.API.Controllers
 			return Ok(_response);
 		}
 
-		[HttpPost]
+		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegistrationRequestDTO requestDTO)
 		{
 			var isUserUnique = await _userRepository.IsUserUnique(requestDTO.Username);
