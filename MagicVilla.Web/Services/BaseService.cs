@@ -2,6 +2,7 @@
 using MagicVilla.Web.Services.IServices;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using static MagicVilla.Utility.Configuration;
 
@@ -10,12 +11,13 @@ namespace MagicVilla.Web.Services
 	public class BaseService : IBaseService
 	{
 		public Response Response { get; set; }
-		public IHttpClientFactory _httpClient { get; set; }
-
-		public BaseService(IHttpClientFactory httpClient)
+		private readonly IHttpClientFactory _httpClient;
+		private readonly IHttpContextAccessor _httpContextAccessor;
+		public BaseService(IHttpClientFactory httpClient, IHttpContextAccessor httpContextAccessor)
 		{
 			Response = new();
 			_httpClient = httpClient;
+			_httpContextAccessor = httpContextAccessor;
 		}
 
 		public async Task<T> SendAsync<T>(Request request)
@@ -48,6 +50,11 @@ namespace MagicVilla.Web.Services
 					case RequestType.DELETE:
 						httpRequest.Method = HttpMethod.Delete;
 						break;
+				}
+
+				if (_httpContextAccessor.HttpContext is not null && !string.IsNullOrWhiteSpace(_httpContextAccessor.HttpContext.Session.GetString(SessionToken)))
+				{
+					client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _httpContextAccessor.HttpContext.Session.GetString(SessionToken));
 				}
 
 				var apiResponse = await client.SendAsync(httpRequest);

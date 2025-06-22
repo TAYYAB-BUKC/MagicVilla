@@ -9,7 +9,7 @@ namespace MagicVilla.Web.Services
 	{
 		public IHttpClientFactory httpclient { get; set; }
 		public string? BASE_URL { get; set; }
-		public VillaNumberService(IHttpClientFactory httpclient, IConfiguration configuration) : base(httpclient)
+		public VillaNumberService(IHttpClientFactory httpclient, IConfiguration configuration, IHttpContextAccessor httpContextAccessor) : base(httpclient, httpContextAccessor)
 		{
 			this.httpclient = httpclient;
 			this.BASE_URL = configuration.GetValue<string>("ServiceURLs:VillaAPI");
