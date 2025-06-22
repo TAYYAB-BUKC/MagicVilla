@@ -2,6 +2,8 @@
 using MagicVilla.Web.Models.DTOs;
 using MagicVilla.Web.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using static MagicVilla.Utility.Configuration;
 
 namespace MagicVilla.Web.Controllers
 {
@@ -26,7 +28,15 @@ namespace MagicVilla.Web.Controllers
 			var response = await _authService.LoginAsync<Response>(request);
 			if(response is not null && !response.IsSuccess)
 			{
+				var model = JsonConvert.DeserializeObject<LoginResponseDTO>(Convert.ToString(response.Data));
+				HttpContext.Session.SetString(SessionToken, model.Token);
+				HttpContext.Session.SetString(SessionUserId, Convert.ToString(model.User.Id));
+				HttpContext.Session.SetString(SessionUserName, model.User.Name);
 				return RedirectToAction(nameof(Index), nameof(HomeController));
+			}
+			foreach (var errorMessage in response.ErrorMessages)
+			{
+				ModelState.AddModelError("CustomError", errorMessage);
 			}
 			return View(request);
 		}
