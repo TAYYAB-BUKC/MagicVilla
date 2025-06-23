@@ -30,7 +30,7 @@ namespace MagicVilla.API.Controllers.v2
 		[HttpGet]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ResponseCache(CacheProfileName = CacheProfileName)]
-		public async Task<ActionResult<Response>> GetVillas([FromQuery(Name = "FilterVillasByOccupany")] int? occupancy, [FromQuery(Name = "SearchVillaByName")] string? search)
+		public async Task<ActionResult<Response>> GetVillas([FromQuery(Name = "FilterVillasByOccupany")] int? occupancy, [FromQuery(Name = "SearchVillaByName")] string? search, int pageSize = 3, int pageNumber = 1)
 		{
 			try
 			{
@@ -50,6 +50,8 @@ namespace MagicVilla.API.Controllers.v2
 					villas = villas.Where(v => v.Name.ToLower().Contains(search.ToLower())).ToList();
 				}
 
+				villas = villas.Skip(pageSize * (pageNumber - 1)).Take(pageSize).ToList();
+				
 				var data = _mapper.Map<IEnumerable<Villa>, IEnumerable<VillaDTO>>(villas);
 				_response.StatusCode = HttpStatusCode.OK;
 				_response.IsSuccess = true;
