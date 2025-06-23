@@ -8,8 +8,9 @@ using System.Net;
 
 namespace MagicVilla.API.Controllers
 {
-	[Route("api/VillaNumberAPI")]
+	[Route("api/v{version:apiVersion}/VillaNumberAPI")]
 	[ApiController]
+	[ApiVersion("1.0")]
 	public class VillaNumberAPIController : ControllerBase
 	{
 		private readonly IVillaNumberRepository _villaNumberRepository;
