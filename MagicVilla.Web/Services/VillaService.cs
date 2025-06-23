@@ -1,8 +1,6 @@
 ﻿using MagicVilla.Web.Models;
 using MagicVilla.Web.Models.DTOs;
 using MagicVilla.Web.Services.IServices;
-using Microsoft.AspNetCore.Http;
-using System.Net.Http;
 using static MagicVilla.Utility.Configuration;
 
 namespace MagicVilla.Web.Services
@@ -23,7 +21,7 @@ namespace MagicVilla.Web.Services
 			return await SendAsync<T>(new Request
 			{
 				RequestType = RequestType.GET,
-				URL = $"{BASE_URL}/api/VillaAPI"
+				URL = $"{BASE_URL}/api/{ApiVersion}/VillaAPI"
 			});
 		}
 
@@ -32,7 +30,7 @@ namespace MagicVilla.Web.Services
 			return await SendAsync<T>(new Request
 			{
 				RequestType = RequestType.GET,
-				URL = $"{BASE_URL}/api/VillaAPI/{id}"
+				URL = $"{BASE_URL}/api/{ApiVersion}/VillaAPI/{id}"
 			});
 		}
 
@@ -41,7 +39,7 @@ namespace MagicVilla.Web.Services
 			return await SendAsync<T>(new Request
 			{
 				RequestType = RequestType.POST,
-				URL = $"{BASE_URL}/api/VillaAPI",
+				URL = $"{BASE_URL}/api/{ApiVersion}/VillaAPI",
 				Data = villa
 			});
 		}
@@ -51,7 +49,7 @@ namespace MagicVilla.Web.Services
 			return await SendAsync<T>(new Request
 			{
 				RequestType = RequestType.PUT,
-				URL = $"{BASE_URL}/api/VillaAPI/{villa.Id}",
+				URL = $"{BASE_URL}/api/{ApiVersion}/VillaAPI/{villa.Id}",
 				Data = villa
 			});
 		}
@@ -61,7 +59,7 @@ namespace MagicVilla.Web.Services
 			return await SendAsync<T>(new Request
 			{
 				RequestType = RequestType.DELETE,
-				URL = $"{BASE_URL}/api/VillaAPI/{id}"
+				URL = $"{BASE_URL}/api/{ApiVersion}/VillaAPI/{id}"
 			});
 		}
 	}

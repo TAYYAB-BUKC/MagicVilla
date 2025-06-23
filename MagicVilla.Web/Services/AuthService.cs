@@ -20,7 +20,7 @@ namespace MagicVilla.Web.Services
 			return await SendAsync<T>(new Request()
 			{
 				RequestType = RequestType.POST,
-				URL = $"{BASE_URL}/api/UserAuth/login",
+				URL = $"{BASE_URL}/api/{ApiVersion}/UserAuth/login",
 				Data = requestDTO
 			});
 		}
@@ -30,7 +30,7 @@ namespace MagicVilla.Web.Services
 			return await SendAsync<T>(new Request()
 			{
 				RequestType = RequestType.POST,
-				URL = $"{BASE_URL}/api/UserAuth/register",
+				URL = $"{BASE_URL}/api/{ApiVersion}/UserAuth/register",
 				Data = requestDTO
 			});
 		}

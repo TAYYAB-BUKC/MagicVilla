@@ -20,7 +20,7 @@ namespace MagicVilla.Web.Services
 			return await SendAsync<T>(new Request()
 			{
 				RequestType = RequestType.GET,
-				URL = $"{BASE_URL}/api/VillaNumberAPI"
+				URL = $"{BASE_URL}/api/{ApiVersion}/VillaNumberAPI"
 			});
 		}
 
@@ -29,7 +29,7 @@ namespace MagicVilla.Web.Services
 			return await SendAsync<T>(new Request()
 			{
 				RequestType = RequestType.GET,
-				URL = $"{BASE_URL}/api/VillaNumberAPI/{id}"
+				URL = $"{BASE_URL}/api/{ApiVersion}/VillaNumberAPI/{id}"
 			});
 		}
 
@@ -38,7 +38,7 @@ namespace MagicVilla.Web.Services
 			return await SendAsync<T>(new Request()
 			{
 				RequestType = RequestType.POST,
-				URL = $"{BASE_URL}/api/VillaNumberAPI",
+				URL = $"{BASE_URL}/api/{ApiVersion}/VillaNumberAPI",
 				Data = villa
 			});
 		}
@@ -48,7 +48,7 @@ namespace MagicVilla.Web.Services
 			return await SendAsync<T>(new Request()
 			{
 				RequestType = RequestType.PUT,
-				URL = $"{BASE_URL}/api/VillaNumberAPI/{villa.VillaNo}",
+				URL = $"{BASE_URL}/api/{ApiVersion}/VillaNumberAPI/{villa.VillaNo}",
 				Data = villa
 			});
 		}
@@ -58,7 +58,7 @@ namespace MagicVilla.Web.Services
 			return await SendAsync<T>(new Request()
 			{
 				RequestType = RequestType.DELETE,
-				URL = $"{BASE_URL}/api/VillaNumberAPI/{id}",
+				URL = $"{BASE_URL}/api/{ApiVersion}/VillaNumberAPI/{id}",
 			});
 		}
 	}
