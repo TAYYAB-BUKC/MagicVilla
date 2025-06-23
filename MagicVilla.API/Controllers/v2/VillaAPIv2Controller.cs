@@ -7,14 +7,14 @@ namespace MagicVilla.API.Controllers.v2
 	[ApiVersion("2.0")]
 	public class VillaAPIv2Controller : ControllerBase
 	{
-		[HttpGet]
+		[HttpGet("GetString")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public IEnumerable<string> GetVillasVersion2()
 		{
 			return new List<string>()
 			{
-				"Value1",
-				"Value2"
+				"MagicString1",
+				"MagicString2"
 			};
 		}
 	}

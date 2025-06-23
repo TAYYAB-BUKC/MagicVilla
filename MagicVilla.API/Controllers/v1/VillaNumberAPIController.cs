@@ -10,7 +10,7 @@ namespace MagicVilla.API.Controllers.v1
 {
 	[Route("api/v{version:apiVersion}/VillaNumberAPI")]
 	[ApiController]
-	[ApiVersion("1.0")]
+	[ApiVersion("1.0", Deprecated = true)]
 	public class VillaNumberAPIController : ControllerBase
 	{
 		private readonly IVillaNumberRepository _villaNumberRepository;
@@ -46,6 +46,16 @@ namespace MagicVilla.API.Controllers.v1
 				_response.ErrorMessages = new List<string>() { Convert.ToString(ex.Message) };
 			}
 			return _response;
+		}
+
+		[HttpGet("GetString")]
+		public IEnumerable<string> Get()
+		{
+			return new List<string>()
+			{
+				"Value1",
+				"Value2"
+			};
 		}
 
 		[HttpGet("{villaNo}", Name = "GetVillaNumber")]
