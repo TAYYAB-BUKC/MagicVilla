@@ -51,7 +51,9 @@ namespace MagicVilla.API.Controllers.v2
 				}
 
 				villas = villas.Skip(pageSize * (pageNumber - 1)).Take(pageSize).ToList();
-				
+
+				Response.Headers.Add("X-Pagination", $"{{\"PageSize\":{pageSize}, \"PageNumber\":{pageNumber}}}");
+
 				var data = _mapper.Map<IEnumerable<Villa>, IEnumerable<VillaDTO>>(villas);
 				_response.StatusCode = HttpStatusCode.OK;
 				_response.IsSuccess = true;
