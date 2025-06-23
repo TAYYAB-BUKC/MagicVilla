@@ -4,6 +4,7 @@ using MagicVilla.API.Mappings;
 using MagicVilla.API.Repository;
 using MagicVilla.API.Repository.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -57,6 +58,25 @@ builder.Services.AddSwaggerGen(options =>
 		    new List<string>()
 		}
     });
+
+    options.SwaggerDoc("v1", new OpenApiInfo()
+    {
+        Version = "v1.0",
+		Title = "Magic Villa",
+		Description = "API version 1.0 to manage villas",
+        TermsOfService = new Uri("https://example.com/terms"),
+        Contact = new OpenApiContact()
+        {
+            Name = "Tayyab Arsalan",
+            Email = "write2tayyabarsalan+linkedin@gmail.com",
+            Url = new Uri("https://example.com/tayyabarsalan")
+        },
+        License = new OpenApiLicense()
+        {
+            Name = "Example License",
+            Url = new Uri("https://example.com/license")
+        }
+    });
 });
 
 builder.Services.AddSingleton<ILogging, Logging>();
@@ -106,7 +126,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+	{
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Magic_Villa_V1");
+	});
 }
 
 app.UseHttpsRedirection();
