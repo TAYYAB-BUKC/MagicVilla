@@ -4,7 +4,7 @@ using MagicVilla.API.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
-namespace MagicVilla.API.Controllers
+namespace MagicVilla.API.Controllers.v1
 {
 	[Route("api/v{version:apiVersion}/UserAuth")]
 	[ApiController]
@@ -24,7 +24,7 @@ namespace MagicVilla.API.Controllers
 		public async Task<IActionResult> Login([FromBody] LoginRequestDTO requestDTO)
 		{
 			var response = await _userRepository.Login(requestDTO);
-			if (response.User is null || String.IsNullOrWhiteSpace(response.Token))
+			if (response.User is null || string.IsNullOrWhiteSpace(response.Token))
 			{
 				_response.StatusCode = HttpStatusCode.BadRequest;
 				_response.IsSuccess = false;
@@ -42,7 +42,7 @@ namespace MagicVilla.API.Controllers
 		public async Task<IActionResult> Register([FromBody] RegistrationRequestDTO requestDTO)
 		{
 			var isUserUnique = await _userRepository.IsUserUnique(requestDTO.Username);
-			if(!isUserUnique)
+			if (!isUserUnique)
 			{
 				_response.StatusCode = HttpStatusCode.BadRequest;
 				_response.IsSuccess = false;

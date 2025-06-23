@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
-namespace MagicVilla.API.Controllers
+namespace MagicVilla.API.Controllers.v1
 {
 	[Route("api/v{version:apiVersion}/VillaNumberAPI")]
 	[ApiController]

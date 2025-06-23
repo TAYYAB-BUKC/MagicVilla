@@ -8,12 +8,11 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
-namespace MagicVilla.API.Controllers
+namespace MagicVilla.API.Controllers.v1
 {
 	[Route("api/v{version:apiVersion}/VillaAPI")]
 	[ApiController]
 	[ApiVersion("1.0")]
-	[ApiVersion("2.0")]
 	public class VillaAPIController : ControllerBase
 	{
 		private ILogger<VillaAPIController> _logger;
@@ -26,7 +25,7 @@ namespace MagicVilla.API.Controllers
 		{
 			_logger = logger;
 			_customLogger = customLogger;
-			_villaRepository = villaRepository; 
+			_villaRepository = villaRepository;
 			_mapper = mapper;
 			_response = new();
 		}
@@ -34,7 +33,6 @@ namespace MagicVilla.API.Controllers
 		[HttpGet]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[Authorize]
-		[MapToApiVersion("1.0")]
 		public async Task<ActionResult<Response>> GetVillas()
 		{
 			try
@@ -52,21 +50,9 @@ namespace MagicVilla.API.Controllers
 			{
 				_response.StatusCode = HttpStatusCode.InternalServerError;
 				_response.IsSuccess = false;
-				_response.ErrorMessages = new List<string>(){ Convert.ToString(ex.Message) };
+				_response.ErrorMessages = new List<string>() { Convert.ToString(ex.Message) };
 			}
 			return _response;
-		}
-
-		[HttpGet]
-		[ProducesResponseType(StatusCodes.Status200OK)]
-		[MapToApiVersion("2.0")]
-		public IEnumerable<string> GetVillasVersion2()
-		{
-			return new List<string>()
-			{
-				"Value1",
-				"Value2"
-			};
 		}
 
 		[HttpGet("{id}", Name = "GetVilla")]
