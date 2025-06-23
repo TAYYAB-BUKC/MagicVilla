@@ -16,11 +16,13 @@ namespace MagicVilla.API.Repository
 		private readonly ApplicationDbContext _dbContext;
 		public string? SecretKey { get; set; }
 		public readonly UserManager<ApplicationUser> _userManager;
-		public UserRepository(ApplicationDbContext dbContext, IConfiguration configuration, UserManager<ApplicationUser> userManager)
+		public readonly RoleManager<IdentityRole> _roleManager;
+		public UserRepository(ApplicationDbContext dbContext, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
 		{
 			_dbContext = dbContext;
 			SecretKey = configuration.GetValue<string>("ApiSettings:SecretKey");
 			_userManager = userManager;
+			_roleManager = roleManager;
 		}
 
 		public async Task<bool> IsUserUnique(string username)
@@ -90,6 +92,10 @@ namespace MagicVilla.API.Repository
 			var response = await _userManager.CreateAsync(user, requestDTO.Password);
 			if (response.Succeeded)
 			{
+				if (!await _roleManager.RoleExistsAsync(requestDTO.Role))
+				{
+					await _roleManager.CreateAsync(new IdentityRole(requestDTO.Role));
+				}
 				await _userManager.AddToRoleAsync(user, requestDTO.Role);
 			}
 			return user;
