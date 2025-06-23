@@ -4,13 +4,13 @@ using MagicVilla.API.Mappings;
 using MagicVilla.API.Repository;
 using MagicVilla.API.Repository.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
+using static MagicVilla.Utility.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +26,10 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers(options =>
 {
     //options.ReturnHttpNotAcceptable = true;
+    options.CacheProfiles.Add(CacheProfileName, new CacheProfile()
+    {
+        Duration = CacheDuration
+    });
 }).AddXmlDataContractSerializerFormatters().AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
