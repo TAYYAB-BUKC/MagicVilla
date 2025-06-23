@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using static MagicVilla.Utility.Configuration;
 
 namespace MagicVilla.API.Controllers.v1
 {
@@ -33,7 +34,7 @@ namespace MagicVilla.API.Controllers.v1
 		[HttpGet]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[Authorize]
-		[ResponseCache(Duration = 30)]
+		[ResponseCache(CacheProfileName = CacheProfileName)]
 		public async Task<ActionResult<Response>> GetVillas()
 		{
 			try
@@ -61,7 +62,7 @@ namespace MagicVilla.API.Controllers.v1
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		[Authorize(Roles = "admin")]
-		[ResponseCache(Duration = 30)]
+		[ResponseCache(CacheProfileName = CacheProfileName)]
 		public async Task<ActionResult<Response>> GetVilla(int id)
 		{
 			try

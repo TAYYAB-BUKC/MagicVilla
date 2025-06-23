@@ -17,7 +17,7 @@
 
 		public static readonly string ApiVersion = "v1";
 
-		public static readonly string CacheProfileName = "Default30";
+		public const string CacheProfileName = "Default30";
 		public static readonly int CacheDuration = 30;
 	}
 }
