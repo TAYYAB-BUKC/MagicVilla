@@ -2,6 +2,7 @@
 using MagicVilla.API.Models;
 using MagicVilla.API.Models.DTOs;
 using MagicVilla.API.Repository.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,15 +15,17 @@ namespace MagicVilla.API.Repository
 	{
 		private readonly ApplicationDbContext _dbContext;
 		public string? SecretKey { get; set; }
-		public UserRepository(ApplicationDbContext dbContext, IConfiguration configuration)
+		public readonly UserManager<ApplicationUser> _userManager;
+		public UserRepository(ApplicationDbContext dbContext, IConfiguration configuration, UserManager<ApplicationUser> userManager)
 		{
 			_dbContext = dbContext;
 			SecretKey = configuration.GetValue<string>("ApiSettings:SecretKey");
+			_userManager = userManager;
 		}
 
 		public async Task<bool> IsUserUnique(string username)
 		{
-			var user = await _dbContext.LocalUsers.FirstOrDefaultAsync(u => u.Username.ToLower() == username.ToLower());
+			var user = await _dbContext.ApplicationUsers.FirstOrDefaultAsync(u => u.UserName.ToLower() == username.ToLower());
 			if(user is null)
 			{
 				return true;
@@ -32,8 +35,10 @@ namespace MagicVilla.API.Repository
 
 		public async Task<LoginResponseDTO> Login(LoginRequestDTO requestDTO)
 		{
-			var user = await _dbContext.LocalUsers.FirstOrDefaultAsync(u => u.Username.ToLower() == requestDTO.Username.ToLower() && u.Password == requestDTO.Password);
-			if (user is null) 
+			var user = await _dbContext.ApplicationUsers.FirstOrDefaultAsync(u => u.UserName.ToLower() == requestDTO.Username.ToLower());
+			var isValid = await _userManager.CheckPasswordAsync(user, requestDTO.Password);
+
+			if (user is null || !isValid) 
 			{
 				return new LoginResponseDTO()
 				{
@@ -45,14 +50,20 @@ namespace MagicVilla.API.Repository
 			var tokenHandler = new JwtSecurityTokenHandler();
 			var key = Encoding.ASCII.GetBytes(SecretKey);
 
+			var roles = await _userManager.GetRolesAsync(user);
+
+			List<Claim> claims = new List<Claim>();
+			foreach (var role in roles)
+			{
+				claims.Add(new Claim(ClaimTypes.Role, role));
+			}
+
+			claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+			claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+					
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
-				Subject = new ClaimsIdentity(new Claim[]
-				{
-					new Claim(ClaimTypes.Name , user.Username),
-					new Claim(ClaimTypes.NameIdentifier , user.Id.ToString()),
-					new Claim(ClaimTypes.Role, user.Role)
-				}),
+				Subject = new ClaimsIdentity(claims),
 				Expires = DateTime.Now.AddMinutes(30),
 				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
 			};
@@ -66,18 +77,21 @@ namespace MagicVilla.API.Repository
  			};
 		}
 
-		public async Task<LocalUser> Regitser(RegistrationRequestDTO requestDTO)
+		public async Task<ApplicationUser> Regitser(RegistrationRequestDTO requestDTO)
 		{
-			LocalUser user = new LocalUser()
+			ApplicationUser user = new ApplicationUser()
 			{
 				Name = requestDTO.Name,
-				Username = requestDTO.Username,
-				Password = requestDTO.Password,
-				Role = requestDTO.Role,
+				Email = requestDTO.Username,
+				NormalizedEmail = requestDTO.Username.ToUpper(),
+				UserName = requestDTO.Username,
 			};
 
-			await _dbContext.LocalUsers.AddAsync(user);
-			await _dbContext.SaveChangesAsync();
+			var response = await _userManager.CreateAsync(user, requestDTO.Password);
+			if (response.Succeeded)
+			{
+				await _userManager.AddToRoleAsync(user, requestDTO.Role);
+			}
 			return user;
 		}
 	}
