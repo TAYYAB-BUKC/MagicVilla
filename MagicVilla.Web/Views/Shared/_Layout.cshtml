@@ -35,8 +35,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="VillaNumber" asp-action="IndexVillaNumber">VillaNumber</a>
                         </li>
-
-                        @if(httpContextAccessor.HttpContext.Session.GetString(SessionToken) is not null &&
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (httpContextAccessor.HttpContext.Session.GetString(SessionToken) is not null &&
                         httpContextAccessor.HttpContext.Session.GetString(SessionToken).Length > 0)
                         {
                             <li class="nav-item">
