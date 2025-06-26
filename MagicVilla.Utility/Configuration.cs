@@ -19,5 +19,8 @@
 
 		public const string CacheProfileName = "Default30";
 		public static readonly int CacheDuration = 30;
+
+		public const string Role_Admin = "admin";
+		public const string Role_User = "user";
 	}
 }

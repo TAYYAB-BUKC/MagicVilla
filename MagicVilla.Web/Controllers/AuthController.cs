@@ -4,6 +4,7 @@ using MagicVilla.Web.Services.IServices;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -60,6 +61,12 @@ namespace MagicVilla.Web.Controllers
 		public IActionResult Register()
 		{
 			RegistrationRequestDTO model = new();
+			List<SelectListItem> list = new () 
+			{
+				new SelectListItem () { Text = Role_Admin, Value = Role_Admin },
+				new SelectListItem () { Text = Role_User, Value = Role_User }
+			};
+			ViewBag.Roles = list;
 			return View(model);
 		}
 
