@@ -17,6 +17,8 @@ namespace MagicVilla.Web.Models.DTOs
 		[Required]
 		public double Rate { get; set; }
 		public string? ImageURL { get; set; }
+		public string? ImageLocalPath { get; set; }
+		public IFormFile? Image { get; set; }
 		public string? Amenity { get; set; }
 	}
 }
