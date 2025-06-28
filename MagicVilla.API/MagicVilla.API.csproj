@@ -28,4 +28,8 @@
     <ProjectReference Include="..\MagicVilla.Utility\MagicVilla.Utility.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Client\VillaImages\" />
+  </ItemGroup>
+
 </Project>
