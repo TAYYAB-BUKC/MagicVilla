@@ -40,7 +40,8 @@ namespace MagicVilla.Web.Services
 			{
 				RequestType = RequestType.POST,
 				URL = $"{BASE_URL}/api/{ApiVersion}/VillaAPI",
-				Data = villa
+				Data = villa,
+				ContentType = ContentType.MultipartFormData
 			});
 		}
 
@@ -50,7 +51,8 @@ namespace MagicVilla.Web.Services
 			{
 				RequestType = RequestType.PUT,
 				URL = $"{BASE_URL}/api/{ApiVersion}/VillaAPI/{villa.Id}",
-				Data = villa
+				Data = villa,
+				ContentType = ContentType.MultipartFormData
 			});
 		}
 
