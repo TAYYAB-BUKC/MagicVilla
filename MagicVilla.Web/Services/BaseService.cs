@@ -35,9 +35,36 @@ namespace MagicVilla.Web.Services
 					httpRequest.Headers.Add("Accept", "application/json");
 				}
 				httpRequest.RequestUri = new Uri(request.URL);
-				if(request.Data is not null)
+
+				if (request.ContentType == ContentType.MultipartFormData)
 				{
-					httpRequest.Content = new StringContent(JsonConvert.SerializeObject(request.Data), Encoding.UTF8, "application/json");
+					var content = new MultipartFormDataContent();
+
+					foreach (var prop in request.Data.GetType().GetProperties())
+					{
+						var value = prop.GetValue(request.Data);
+						if(value is FormFile)
+						{
+							var file = (FormFile)value;
+							if(file is not null)
+							{
+								content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.FileName);
+							}
+						}
+						else
+						{
+							content.Add(new StringContent(Convert.ToString(value)), prop.Name);
+						}
+					}
+
+					httpRequest.Content = content;
+				}
+				else
+				{
+					if(request.Data is not null)
+					{
+						httpRequest.Content = new StringContent(JsonConvert.SerializeObject(request.Data), Encoding.UTF8, "application/json");
+					}
 				}
 
 				switch (request.RequestType)
