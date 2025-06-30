@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Security.Claims;
 using static MagicVilla.Utility.Configuration;
 
@@ -15,9 +16,11 @@ namespace MagicVilla.Web.Controllers
 	public class AuthController : Controller
 	{
 		private readonly IAuthService _authService;
-		public AuthController(IAuthService authService)
+		private readonly ITokenProvider _tokenProvider;
+		public AuthController(IAuthService authService, ITokenProvider tokenProvider)
 		{
 			_authService = authService;
+			_tokenProvider = tokenProvider;
 		}
 
 		public IActionResult Login()
@@ -38,7 +41,7 @@ namespace MagicVilla.Web.Controllers
 				var tokenHandler = new JwtSecurityTokenHandler();
 				var token = tokenHandler.ReadJwtToken(model.AccessToken);
 
-				HttpContext.Session.SetString(AccessToken, model.AccessToken);
+				_tokenProvider.SetToken(model);
 				HttpContext.Session.SetString(SessionUserId, token.Claims.FirstOrDefault(c => c.Type == "nameidentifier").Value);
 				HttpContext.Session.SetString(SessionUserName, token.Claims.FirstOrDefault(c => c.Type == "name").Value);
 
@@ -89,7 +92,7 @@ namespace MagicVilla.Web.Controllers
 		public async Task<IActionResult> Logout()
 		{
 			await HttpContext.SignOutAsync();
-			HttpContext.Session.SetString(AccessToken, string.Empty);
+			_tokenProvider.ClearToken();
 			HttpContext.Session.SetString(SessionUserId, string.Empty);
 			HttpContext.Session.SetString(SessionUserName, string.Empty);
 			return RedirectToAction("Index", "Home");
