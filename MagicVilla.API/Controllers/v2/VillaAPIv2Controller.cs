@@ -163,29 +163,30 @@ namespace MagicVilla.API.Controllers.v2
 				if(villa.Image is not null)
 				{
 					string filename = $"{Convert.ToString(newVilla.Id)}{Path.GetExtension(villa.Image.FileName)}";
-					string filePath = $"wwwroot/client/villaimages/{filename}";
+					string directoryPath = $"wwwroot/client/villaimages/";
+					string filePath = $"{directoryPath}{filename}";
 
-					var directoryLocation = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+					var directoryLocation = Path.Combine(Directory.GetCurrentDirectory(), directoryPath);
 					if (!Directory.Exists(directoryLocation))
 					{
 						Directory.CreateDirectory(directoryLocation);
 					}
 
-					var fileInfo= new FileInfo(directoryLocation);
+					var fileInfo= new FileInfo(filePath);
 
 					if (fileInfo.Exists)
 					{
 						fileInfo.Delete();
 					}
 
-					using (var fileStream = new FileStream(directoryLocation, FileMode.Create))
+					using (var fileStream = new FileStream(filePath, FileMode.Create))
 					{
 						await villa.Image.CopyToAsync(fileStream);
 					}
 
 					var baseURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
 
-					newVilla.ImageURL = $"{baseURL}/villaimages/{filename}";
+					newVilla.ImageURL = $"{baseURL}/client/villaimages/{filename}";
 					newVilla.ImageLocalPath = filePath;
 				}
 				else
