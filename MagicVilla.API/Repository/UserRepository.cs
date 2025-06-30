@@ -48,33 +48,12 @@ namespace MagicVilla.API.Repository
 				};
 			}
 
-			var tokenHandler = new JwtSecurityTokenHandler();
-			var key = Encoding.ASCII.GetBytes(SecretKey);
-
-			var roles = await _userManager.GetRolesAsync(user);
-
-			List<Claim> claims = new List<Claim>();
-			foreach (var role in roles)
-			{
-				claims.Add(new Claim(ClaimTypes.Role, role));
-			}
-
-			claims.Add(new Claim(ClaimTypes.Name, user.UserName));
-			claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-					
-			var tokenDescriptor = new SecurityTokenDescriptor
-			{
-				Subject = new ClaimsIdentity(claims),
-				Expires = DateTime.Now.AddMinutes(30),
-				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-			};
-
-			var token = tokenHandler.CreateToken(tokenDescriptor);
+			var token = await GenerateAccessToken(user);
 
 			return new LoginResponseDTO()
 			{
-				AccessToken = tokenHandler.WriteToken(token)
- 			};
+				AccessToken = token
+			};
 		}
 
 		public async Task<ApplicationUser> Regitser(RegistrationRequestDTO requestDTO)
@@ -97,6 +76,34 @@ namespace MagicVilla.API.Repository
 				await _userManager.AddToRoleAsync(user, requestDTO.Role);
 			}
 			return user;
+		}
+
+		private async Task<string> GenerateAccessToken(ApplicationUser user)
+		{
+			var tokenHandler = new JwtSecurityTokenHandler();
+			var key = Encoding.ASCII.GetBytes(SecretKey);
+
+			var roles = await _userManager.GetRolesAsync(user);
+
+			List<Claim> claims = new List<Claim>();
+			foreach (var role in roles)
+			{
+				claims.Add(new Claim(ClaimTypes.Role, role));
+			}
+
+			claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+			claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+
+			var tokenDescriptor = new SecurityTokenDescriptor
+			{
+				Subject = new ClaimsIdentity(claims),
+				Expires = DateTime.Now.AddMinutes(30),
+				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+			};
+
+			var token = tokenHandler.CreateToken(tokenDescriptor);
+
+			return tokenHandler.WriteToken(token);
 		}
 	}
 }
