@@ -86,9 +86,9 @@ namespace MagicVilla.Web.Services
 						break;
 				}
 
-				if (_httpContextAccessor.HttpContext is not null && !string.IsNullOrWhiteSpace(_httpContextAccessor.HttpContext.Session.GetString(SessionToken)))
+				if (_httpContextAccessor.HttpContext is not null && !string.IsNullOrWhiteSpace(_httpContextAccessor.HttpContext.Session.GetString(AccessToken)))
 				{
-					client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _httpContextAccessor.HttpContext.Session.GetString(SessionToken));
+					client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _httpContextAccessor.HttpContext.Session.GetString(AccessToken));
 				}
 
 				var apiResponse = await client.SendAsync(httpRequest);

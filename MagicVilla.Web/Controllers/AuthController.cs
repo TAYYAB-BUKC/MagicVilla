@@ -38,7 +38,7 @@ namespace MagicVilla.Web.Controllers
 				var tokenHandler = new JwtSecurityTokenHandler();
 				var token = tokenHandler.ReadJwtToken(model.Token);
 
-				HttpContext.Session.SetString(SessionToken, model.Token);
+				HttpContext.Session.SetString(AccessToken, model.Token);
 				HttpContext.Session.SetString(SessionUserId, Convert.ToString(model.User.Id));
 				HttpContext.Session.SetString(SessionUserName, model.User.Name);
 
@@ -89,7 +89,7 @@ namespace MagicVilla.Web.Controllers
 		public async Task<IActionResult> Logout()
 		{
 			await HttpContext.SignOutAsync();
-			HttpContext.Session.SetString(SessionToken, string.Empty);
+			HttpContext.Session.SetString(AccessToken, string.Empty);
 			HttpContext.Session.SetString(SessionUserId, string.Empty);
 			HttpContext.Session.SetString(SessionUserName, string.Empty);
 			return RedirectToAction("Index", "Home");
