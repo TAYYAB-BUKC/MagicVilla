@@ -21,7 +21,7 @@ namespace MagicVilla.Web.Services
 			_tokenProvider = tokenProvider;
 		}
 
-		public async Task<T> SendAsync<T>(Request request)
+		public async Task<T> SendAsync<T>(Request request, bool withBearer = true)
 		{
 			try
 			{
@@ -88,7 +88,7 @@ namespace MagicVilla.Web.Services
 				}
 
 				var token = _tokenProvider.GetToken();
-				if (token is not null && !string.IsNullOrWhiteSpace(token.AccessToken))
+				if (withBearer && token is not null && !string.IsNullOrWhiteSpace(token.AccessToken))
 				{
 					client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
 				}
