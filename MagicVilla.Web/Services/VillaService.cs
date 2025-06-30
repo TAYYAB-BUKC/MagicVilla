@@ -5,20 +5,22 @@ using static MagicVilla.Utility.Configuration;
 
 namespace MagicVilla.Web.Services
 {
-	public class VillaService : BaseService, IVillaService
+	public class VillaService : IVillaService
 	{
-		public IHttpClientFactory httpClient { get; set; }
+		private readonly IHttpClientFactory httpClient;
+		private readonly IBaseService _baseService;
 		public string? BASE_URL { get; set; }
 
-		public VillaService(IHttpClientFactory httpClient, IConfiguration configuration, ITokenProvider provider) : base(httpClient, provider)
+		public VillaService(IHttpClientFactory httpClient, IConfiguration configuration, IBaseService baseService)
 		{
 			this.httpClient = httpClient;
 			this.BASE_URL = configuration.GetValue<string>("ServiceURLs:VillaAPI");
+			this._baseService = baseService;
 		}
 
 		public async Task<T> GetAllAsync<T>()
 		{
-			return await SendAsync<T>(new Request
+			return await _baseService.SendAsync<T>(new Request
 			{
 				RequestType = RequestType.GET,
 				URL = $"{BASE_URL}/api/{ApiVersion}/VillaAPI"
@@ -27,7 +29,7 @@ namespace MagicVilla.Web.Services
 
 		public async Task<T> GetAsync<T>(int id)
 		{
-			return await SendAsync<T>(new Request
+			return await _baseService.SendAsync<T>(new Request
 			{
 				RequestType = RequestType.GET,
 				URL = $"{BASE_URL}/api/{ApiVersion}/VillaAPI/{id}"
@@ -36,7 +38,7 @@ namespace MagicVilla.Web.Services
 
 		public async Task<T> CreateAsync<T>(VillaCreateDTO villa)
 		{
-			return await SendAsync<T>(new Request
+			return await _baseService.SendAsync<T>(new Request
 			{
 				RequestType = RequestType.POST,
 				URL = $"{BASE_URL}/api/{ApiVersion}/VillaAPI",
@@ -47,7 +49,7 @@ namespace MagicVilla.Web.Services
 
 		public async Task<T> UpdateAsync<T>(VillaUpdateDTO villa)
 		{
-			return await SendAsync<T>(new Request
+			return await _baseService.SendAsync<T>(new Request
 			{
 				RequestType = RequestType.PUT,
 				URL = $"{BASE_URL}/api/{ApiVersion}/VillaAPI/{villa.Id}",
@@ -58,7 +60,7 @@ namespace MagicVilla.Web.Services
 
 		public async Task<T> DeleteAsync<T>(int id)
 		{
-			return await SendAsync<T>(new Request
+			return await _baseService.SendAsync<T>(new Request
 			{
 				RequestType = RequestType.DELETE,
 				URL = $"{BASE_URL}/api/{ApiVersion}/VillaAPI/{id}"
