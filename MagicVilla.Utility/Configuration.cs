@@ -15,7 +15,7 @@
 		public static readonly string SessionUserId = "LoggedInUserID";
 		public static readonly string SessionUserName = "LoggedInUserName";
 
-		public static readonly string ApiVersion = "v1";
+		public static readonly string ApiVersion = "v2";
 
 		public const string CacheProfileName = "Default30";
 		public static readonly int CacheDuration = 30;
