@@ -228,7 +228,19 @@ namespace MagicVilla.API.Controllers.v2
 				}
 
 				await _villaRepository.RemoveAsync(villa);
-			
+
+				if (!String.IsNullOrEmpty(villa.ImageLocalPath))
+				{
+					var oldDirectoryLocation = Path.Combine(Directory.GetCurrentDirectory(), villa.ImageLocalPath);
+
+					var oldFileInfo = new FileInfo(oldDirectoryLocation);
+
+					if (oldFileInfo.Exists)
+					{
+						oldFileInfo.Delete();
+					}
+				}
+
 				_response.StatusCode = HttpStatusCode.NoContent;
 				_response.IsSuccess = true;
 			}
