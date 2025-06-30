@@ -16,7 +16,7 @@ namespace MagicVilla.Web.Services
 		{
 			return new LoginResponseDTO()
 			{
-				Token = _httpContextAccessor.HttpContext?.Session.GetString(AccessToken)
+				AccessToken = _httpContextAccessor.HttpContext?.Session.GetString(AccessToken)
 			};
 		}
 
@@ -27,7 +27,7 @@ namespace MagicVilla.Web.Services
 
 		public void SetToken(LoginResponseDTO model)
 		{
-			_httpContextAccessor.HttpContext?.Session.SetString(AccessToken, model.Token);
+			_httpContextAccessor.HttpContext?.Session.SetString(AccessToken, model.AccessToken);
 		}
 	}
 }

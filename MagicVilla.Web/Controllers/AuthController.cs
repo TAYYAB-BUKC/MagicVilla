@@ -36,9 +36,9 @@ namespace MagicVilla.Web.Controllers
 				var model = JsonConvert.DeserializeObject<LoginResponseDTO>(Convert.ToString(response.Data));
 				
 				var tokenHandler = new JwtSecurityTokenHandler();
-				var token = tokenHandler.ReadJwtToken(model.Token);
+				var token = tokenHandler.ReadJwtToken(model.AccessToken);
 
-				HttpContext.Session.SetString(AccessToken, model.Token);
+				HttpContext.Session.SetString(AccessToken, model.AccessToken);
 				HttpContext.Session.SetString(SessionUserId, token.Claims.FirstOrDefault(c => c.Type == "nameidentifier").Value);
 				HttpContext.Session.SetString(SessionUserName, token.Claims.FirstOrDefault(c => c.Type == "name").Value);
 
