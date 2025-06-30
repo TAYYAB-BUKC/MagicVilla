@@ -159,7 +159,41 @@ namespace MagicVilla.API.Controllers.v2
 				var newVilla = _mapper.Map<Villa>(villa);
 				newVilla.CreatedDate = DateTime.Now;
 				await _villaRepository.CreateAsync(newVilla);
-			
+
+				if(villa.Image is not null)
+				{
+					string filename = $"{Convert.ToString(newVilla.Id)}{Path.GetExtension(villa.Image.FileName)}";
+					string filePath = $"wwwroot/client/villaimages/{filename}";
+
+					var directoryLocation = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+					if (!Directory.Exists(directoryLocation))
+					{
+						Directory.CreateDirectory(directoryLocation);
+					}
+
+					var fileInfo= new FileInfo(directoryLocation);
+
+					if (fileInfo.Exists)
+					{
+						fileInfo.Delete();
+					}
+
+					using (var fileStream = new FileStream(directoryLocation, FileMode.Create))
+					{
+						await villa.Image.CopyToAsync(fileStream);
+					}
+
+					var baseURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
+
+					newVilla.ImageURL = $"{baseURL}/villaimages/{filename}";
+					newVilla.ImageLocalPath = filePath;
+				}
+				else
+				{
+					villa.ImageURL = $"https://placehold.co/600x40{newVilla.Id}";
+				}
+
+				await _villaRepository.UpdateAsync(newVilla);
 				_response.StatusCode = HttpStatusCode.Created;
 				_response.IsSuccess = true;
 				_response.Data = newVilla;
