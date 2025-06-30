@@ -24,7 +24,7 @@ namespace MagicVilla.Web.Services
 				RequestType = RequestType.POST,
 				URL = $"{BASE_URL}/api/{ApiVersion}/UserAuth/login",
 				Data = requestDTO
-			});
+			}, false);
 		}
 
 		public async Task<T> RegisterAsync<T>(RegistrationRequestDTO requestDTO)
@@ -34,7 +34,7 @@ namespace MagicVilla.Web.Services
 				RequestType = RequestType.POST,
 				URL = $"{BASE_URL}/api/{ApiVersion}/UserAuth/register",
 				Data = requestDTO
-			});
+			}, false);
 		}
 	}
 }
