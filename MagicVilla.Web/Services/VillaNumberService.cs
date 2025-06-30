@@ -1,6 +1,7 @@
 ﻿using MagicVilla.Web.Models;
 using MagicVilla.Web.Models.DTOs;
 using MagicVilla.Web.Services.IServices;
+using System.Net.Http;
 using static MagicVilla.Utility.Configuration;
 
 namespace MagicVilla.Web.Services
@@ -9,7 +10,7 @@ namespace MagicVilla.Web.Services
 	{
 		public IHttpClientFactory httpclient { get; set; }
 		public string? BASE_URL { get; set; }
-		public VillaNumberService(IHttpClientFactory httpclient, IConfiguration configuration, IHttpContextAccessor httpContextAccessor) : base(httpclient, httpContextAccessor)
+		public VillaNumberService(IHttpClientFactory httpClient, IConfiguration configuration, ITokenProvider provider) : base(httpClient, provider)
 		{
 			this.httpclient = httpclient;
 			this.BASE_URL = configuration.GetValue<string>("ServiceURLs:VillaAPI");

@@ -12,12 +12,13 @@ namespace MagicVilla.Web.Services
 	{
 		public Response Response { get; set; }
 		private readonly IHttpClientFactory _httpClient;
-		private readonly IHttpContextAccessor _httpContextAccessor;
-		public BaseService(IHttpClientFactory httpClient, IHttpContextAccessor httpContextAccessor)
+		private readonly ITokenProvider _tokenProvider;
+
+		public BaseService(IHttpClientFactory httpClient, ITokenProvider tokenProvider)
 		{
 			Response = new();
 			_httpClient = httpClient;
-			_httpContextAccessor = httpContextAccessor;
+			_tokenProvider = tokenProvider;
 		}
 
 		public async Task<T> SendAsync<T>(Request request)
@@ -86,9 +87,10 @@ namespace MagicVilla.Web.Services
 						break;
 				}
 
-				if (_httpContextAccessor.HttpContext is not null && !string.IsNullOrWhiteSpace(_httpContextAccessor.HttpContext.Session.GetString(AccessToken)))
+				var token = _tokenProvider.GetToken();
+				if (token is not null && !string.IsNullOrWhiteSpace(token.AccessToken))
 				{
-					client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _httpContextAccessor.HttpContext.Session.GetString(AccessToken));
+					client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
 				}
 
 				var apiResponse = await client.SendAsync(httpRequest);
