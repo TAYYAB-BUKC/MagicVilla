@@ -39,11 +39,11 @@ namespace MagicVilla.Web.Controllers
 				var token = tokenHandler.ReadJwtToken(model.Token);
 
 				HttpContext.Session.SetString(AccessToken, model.Token);
-				HttpContext.Session.SetString(SessionUserId, Convert.ToString(model.User.Id));
-				HttpContext.Session.SetString(SessionUserName, model.User.Name);
+				HttpContext.Session.SetString(SessionUserId, token.Claims.FirstOrDefault(c => c.Type == "nameidentifier").Value);
+				HttpContext.Session.SetString(SessionUserName, token.Claims.FirstOrDefault(c => c.Type == "name").Value);
 
 				var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-				identity.AddClaim(new Claim(ClaimTypes.Name, model.User.Name));
+				identity.AddClaim(new Claim(ClaimTypes.Name, token.Claims.FirstOrDefault(c => c.Type == "name").Value));
 				identity.AddClaim(new Claim(ClaimTypes.Role, token.Claims.FirstOrDefault(c => c.Type == "role").Value));
 
 				var principal = new ClaimsPrincipal(identity);
