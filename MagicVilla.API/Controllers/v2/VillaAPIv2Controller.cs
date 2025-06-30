@@ -124,7 +124,7 @@ namespace MagicVilla.API.Controllers.v2
 		[ProducesResponseType(StatusCodes.Status201Created)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-		public async Task<ActionResult<Response>> CreateVilla([FromBody] VillaCreateDTO villa)
+		public async Task<ActionResult<Response>> CreateVilla([FromForm] VillaCreateDTO villa)
 		{
 			try
 			{
