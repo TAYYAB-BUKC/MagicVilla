@@ -24,7 +24,7 @@ namespace MagicVilla.API.Controllers
 		public async Task<IActionResult> Login([FromBody] LoginRequestDTO requestDTO)
 		{
 			var response = await _userRepository.Login(requestDTO);
-			if (response is null || string.IsNullOrWhiteSpace(response.Token))
+			if (response is null || string.IsNullOrWhiteSpace(response.AccessToken))
 			{
 				_response.StatusCode = HttpStatusCode.BadRequest;
 				_response.IsSuccess = false;

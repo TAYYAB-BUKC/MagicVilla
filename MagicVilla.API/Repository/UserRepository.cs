@@ -44,7 +44,7 @@ namespace MagicVilla.API.Repository
 			{
 				return new LoginResponseDTO()
 				{
-					Token = String.Empty
+					AccessToken = String.Empty
 				};
 			}
 
@@ -73,7 +73,7 @@ namespace MagicVilla.API.Repository
 
 			return new LoginResponseDTO()
 			{
-				Token = tokenHandler.WriteToken(token)
+				AccessToken = tokenHandler.WriteToken(token)
  			};
 		}
 
