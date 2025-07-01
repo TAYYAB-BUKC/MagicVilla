@@ -137,6 +137,12 @@ namespace MagicVilla.API.Repository
 			{
 				existingRefreshToken.IsValid = false;
 				await _dbContext.SaveChangesAsync();
+
+				return new LoginResponseDTO()
+				{
+					AccessToken = string.Empty,
+					RefreshToken = string.Empty
+				};
 			}
 
 			// When someone tries to use invalid RefreshToken the it's a fraud request
@@ -147,6 +153,12 @@ namespace MagicVilla.API.Repository
 			{
 				existingRefreshToken.IsValid = false;
 				await _dbContext.SaveChangesAsync();
+
+				return new LoginResponseDTO()
+				{
+					AccessToken = string.Empty,
+					RefreshToken = string.Empty
+				};
 			}
 
 			// Replace old RefreshToken with the new expire date
