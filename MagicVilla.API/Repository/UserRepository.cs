@@ -179,6 +179,19 @@ namespace MagicVilla.API.Repository
 				};
 			}
 
+			// Check if user exists 
+
+			var user = await _dbContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == existingRefreshToken.UserId);
+
+			if(user is null)
+			{
+				return new LoginResponseDTO()
+				{
+					AccessToken = string.Empty,
+					RefreshToken = string.Empty
+				};
+			}
+
 			// Replace old RefreshToken with the new expire date
 
 			var newRefreshToken = await GenerateNewRefreshToken(existingRefreshToken.UserId, existingRefreshToken.JWTTokenId);
@@ -191,7 +204,7 @@ namespace MagicVilla.API.Repository
 			}
 
 			// Generate New AccessToken
-			var user = await _dbContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == existingRefreshToken.UserId);
+			
 			var newAccessToken = await GenerateAccessToken(user, existingRefreshToken.JWTTokenId);
 
 			return new LoginResponseDTO()
