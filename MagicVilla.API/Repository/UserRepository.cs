@@ -44,15 +44,19 @@ namespace MagicVilla.API.Repository
 			{
 				return new LoginResponseDTO()
 				{
-					AccessToken = String.Empty
+					AccessToken = string.Empty,
+					RefreshToken = string.Empty
 				};
 			}
 
-			var token = await GenerateAccessToken(user);
+			var tokenID = $"JTI_{Guid.NewGuid().ToString("N")}";
+			var accessToken = await GenerateAccessToken(user, tokenID);
+			var refreshToken = await GenerateNewRefreshToken(user.Id, tokenID);
 
 			return new LoginResponseDTO()
 			{
-				AccessToken = token
+				AccessToken = accessToken,
+				RefreshToken = refreshToken
 			};
 		}
 
@@ -78,7 +82,7 @@ namespace MagicVilla.API.Repository
 			return user;
 		}
 
-		private async Task<string> GenerateAccessToken(ApplicationUser user)
+		private async Task<string> GenerateAccessToken(ApplicationUser user, string tokenID)
 		{
 			var tokenHandler = new JwtSecurityTokenHandler();
 			var key = Encoding.ASCII.GetBytes(SecretKey);
