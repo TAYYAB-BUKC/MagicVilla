@@ -62,7 +62,7 @@ namespace MagicVilla.API.Controllers
 			if (ModelState.IsValid)
 			{
 				var response = await _userRepository.GenerateTokens(requestDTO);
-				if (response is null || !string.IsNullOrWhiteSpace(response.AccessToken))
+				if (response is null || string.IsNullOrWhiteSpace(response.AccessToken))
 				{
 					_response.StatusCode = HttpStatusCode.BadRequest;
 					_response.IsSuccess = false;
