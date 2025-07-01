@@ -147,6 +147,23 @@ namespace MagicVilla.API.Repository
 
 			// When someone tries to use invalid RefreshToken the it's a fraud request
 
+			if (!existingRefreshToken.IsValid)
+			{
+				var tokenChain = _dbContext.RefreshTokens.Where(rt => rt.UserId == existingRefreshToken.UserId
+								&& rt.JWTTokenId == existingRefreshToken.JWTTokenId).ToList();
+				
+				tokenChain.ForEach(t => t.IsValid = false);
+
+				_dbContext.UpdateRange(tokenChain);
+				await _dbContext.SaveChangesAsync();
+
+				return new LoginResponseDTO()
+				{
+					AccessToken = string.Empty,
+					RefreshToken = string.Empty
+				};
+			}
+
 			// If RefreshToken has expired then mark it as invalid
 
 			if (existingRefreshToken.ExpiresAt < DateTime.Now)
