@@ -11,7 +11,8 @@
 			DELETE
 		}
 
-		public static readonly string AccessToken = "SecureToken";
+		public static readonly string AccessToken = "SecureAccessToken";
+		public static readonly string RefreshToken = "SecureRefreshToken"; 
 		public static readonly string SessionUserId = "LoggedInUserID";
 		public static readonly string SessionUserName = "LoggedInUserName";
 

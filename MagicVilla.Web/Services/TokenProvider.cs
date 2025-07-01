@@ -16,18 +16,21 @@ namespace MagicVilla.Web.Services
 		{
 			return new LoginResponseDTO()
 			{
-				AccessToken = _httpContextAccessor.HttpContext?.Session.GetString(AccessToken)
+				AccessToken = _httpContextAccessor.HttpContext?.Session.GetString(AccessToken),
+				RefreshToken = _httpContextAccessor.HttpContext?.Session.GetString(RefreshToken),
 			};
 		}
 
 		public void ClearToken()
 		{
 			_httpContextAccessor.HttpContext?.Session.SetString(AccessToken, string.Empty);
+			_httpContextAccessor.HttpContext?.Session.SetString(RefreshToken, string.Empty);
 		}
 
 		public void SetToken(LoginResponseDTO model)
 		{
 			_httpContextAccessor.HttpContext?.Session.SetString(AccessToken, model.AccessToken);
+			_httpContextAccessor.HttpContext?.Session.SetString(RefreshToken, model.RefreshToken);
 		}
 	}
 }
