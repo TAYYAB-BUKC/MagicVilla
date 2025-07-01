@@ -109,5 +109,21 @@ namespace MagicVilla.API.Repository
 
 			return tokenHandler.WriteToken(token);
 		}
+
+		private (bool IsSuccess, string userID, string TokenID) GetAccessTokenData(string AccessToken)
+		{
+			try
+			{
+				var tokenHandler = new JwtSecurityTokenHandler();
+				var data = tokenHandler.ReadJwtToken(AccessToken);
+				var userId = data.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub).Value;
+				var tokenId = data.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti).Value;
+				return (true, userId, tokenId);
+			}
+			catch (Exception e)
+			{
+				return (false, string.Empty, string.Empty);
+			}
+		}
 	}
 }
