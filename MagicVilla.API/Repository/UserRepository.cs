@@ -91,8 +91,12 @@ namespace MagicVilla.API.Repository
 				claims.Add(new Claim(ClaimTypes.Role, role));
 			}
 
+			var tokenID = $"JTI_{Guid.NewGuid().ToString("N")}";
+
 			claims.Add(new Claim(ClaimTypes.Name, user.UserName));
 			claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+			claims.Add(new Claim(JwtRegisteredClaimNames.Jti, tokenID));
+			claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()));
 
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
