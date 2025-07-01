@@ -103,7 +103,7 @@ namespace MagicVilla.API.Repository
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
 				Subject = new ClaimsIdentity(claims),
-				Expires = DateTime.Now.AddMinutes(30),
+				Expires = DateTime.Now.AddMinutes(1),
 				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
 			};
 
@@ -149,12 +149,13 @@ namespace MagicVilla.API.Repository
 
 			if (!existingRefreshToken.IsValid)
 			{
-				var tokenChain = _dbContext.RefreshTokens.Where(rt => rt.UserId == existingRefreshToken.UserId
-								&& rt.JWTTokenId == existingRefreshToken.JWTTokenId).ToList();
-				
-				tokenChain.ForEach(t => t.IsValid = false);
+				var tokenChain = await _dbContext.RefreshTokens.Where(rt => rt.UserId == existingRefreshToken.UserId
+								&& rt.JWTTokenId == existingRefreshToken.JWTTokenId)
+								.ExecuteUpdateAsync(rt =>rt.SetProperty(rt=>rt.IsValid, false));
 
-				_dbContext.UpdateRange(tokenChain);
+				//tokenChain.ForEach(t => t.IsValid = false);
+
+				//_dbContext.UpdateRange(tokenChain);
 				await _dbContext.SaveChangesAsync();
 
 				return new LoginResponseDTO()
@@ -224,7 +225,7 @@ namespace MagicVilla.API.Repository
 				JWTTokenId = tokenId,
 				UserId = userId,
 				JWTRefreshToken = $"{Guid.NewGuid().ToString("N")}{Guid.NewGuid().ToString("N")}{Guid.NewGuid().ToString("N")}",
-				ExpiresAt = DateTime.Now.AddDays(60),
+				ExpiresAt = DateTime.Now.AddMinutes(2),
 			};
 
 			await _dbContext.RefreshTokens.AddAsync(refreshToken);
