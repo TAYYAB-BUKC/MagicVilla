@@ -8,5 +8,6 @@ namespace MagicVilla.API.Repository.Interfaces
 		Task<bool> IsUserUnique(string username);
 		Task<LoginResponseDTO> Login(LoginRequestDTO requestDTO);
 		Task<ApplicationUser> Regitser(RegistrationRequestDTO requestDTO);
+		Task<LoginResponseDTO> GenerateTokens(LoginResponseDTO requestDTO);
 	}
 }

@@ -55,5 +55,31 @@ namespace MagicVilla.API.Controllers
 			_response.IsSuccess = true;
 			return Ok(_response);
 		}
+
+		[HttpPost("refresh")]
+		public async Task<IActionResult> GenerateNewToken([FromBody] LoginResponseDTO requestDTO)
+		{
+			if (ModelState.IsValid)
+			{
+				var response = await _userRepository.GenerateTokens(requestDTO);
+				if (response is null || !string.IsNullOrWhiteSpace(response.AccessToken))
+				{
+					_response.StatusCode = HttpStatusCode.BadRequest;
+					_response.IsSuccess = false;
+					_response.ErrorMessages?.Add("Invalid token");
+					return BadRequest(_response);
+				}
+
+				_response.StatusCode = HttpStatusCode.OK;
+				_response.IsSuccess = true;
+				_response.Data = response;
+				return Ok(_response);
+			}
+
+			_response.StatusCode = HttpStatusCode.BadRequest;
+			_response.IsSuccess = false;
+			_response.ErrorMessages?.Add("Invalid request");
+			return BadRequest(_response);			
+		}
 	}
 }
