@@ -95,8 +95,6 @@ namespace MagicVilla.API.Repository
 				claims.Add(new Claim(ClaimTypes.Role, role));
 			}
 
-			var tokenID = $"JTI_{Guid.NewGuid().ToString("N")}";
-
 			claims.Add(new Claim(ClaimTypes.Name, user.UserName));
 			claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
 			claims.Add(new Claim(JwtRegisteredClaimNames.Jti, tokenID));
@@ -112,6 +110,65 @@ namespace MagicVilla.API.Repository
 			var token = tokenHandler.CreateToken(tokenDescriptor);
 
 			return tokenHandler.WriteToken(token);
+		}
+
+		public async Task<LoginResponseDTO> GenerateTokens(LoginResponseDTO requestDTO)
+		{
+			// Find an existing RefreshToken
+
+			var existingRefreshToken = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.JWTRefreshToken == requestDTO.RefreshToken);
+
+			if(existingRefreshToken is null)
+			{
+				return new LoginResponseDTO()
+				{
+					AccessToken = string.Empty,
+					RefreshToken = string.Empty
+				};
+			}
+
+			// Compare data from existing RefreshToken with the provided AccessToken and if there is a mismatch then consider it a fraud request
+
+			var tokenDetails = GetAccessTokenData(requestDTO.AccessToken);
+
+			if(!tokenDetails.IsSuccess
+				|| existingRefreshToken.JWTTokenId != tokenDetails.TokenID
+				|| existingRefreshToken.UserId != tokenDetails.userID)
+			{
+				existingRefreshToken.IsValid = false;
+				await _dbContext.SaveChangesAsync();
+			}
+
+			// When someone tries to use invalid RefreshToken the it's a fraud request
+
+			// If RefreshToken has expired then mark it as invalid
+
+			if (existingRefreshToken.ExpiresAt < DateTime.Now)
+			{
+				existingRefreshToken.IsValid = false;
+				await _dbContext.SaveChangesAsync();
+			}
+
+			// Replace old RefreshToken with the new expire date
+
+			var newRefreshToken = await GenerateNewRefreshToken(existingRefreshToken.UserId, existingRefreshToken.JWTTokenId);
+
+			// Revoke existing RefreshToken
+			if (!string.IsNullOrWhiteSpace(newRefreshToken))
+			{
+				existingRefreshToken.IsValid = false;
+				await _dbContext.SaveChangesAsync();
+			}
+
+			// Generate New AccessToken
+			var user = await _dbContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == existingRefreshToken.UserId);
+			var newAccessToken = await GenerateAccessToken(user, existingRefreshToken.JWTTokenId);
+
+			return new LoginResponseDTO()
+			{
+				AccessToken = newAccessToken,
+				RefreshToken = newRefreshToken,
+			};
 		}
 
 		private (bool IsSuccess, string userID, string TokenID) GetAccessTokenData(string AccessToken)
