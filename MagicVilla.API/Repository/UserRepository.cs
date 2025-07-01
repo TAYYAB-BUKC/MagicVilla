@@ -125,5 +125,22 @@ namespace MagicVilla.API.Repository
 				return (false, string.Empty, string.Empty);
 			}
 		}
+
+		private async Task<string> GenerateNewRefreshToken(string userId, string tokenId)
+		{
+			RefreshToken refreshToken = new()
+			{
+				IsValid = true,
+				JWTTokenId = tokenId,
+				UserId = userId,
+				JWTRefreshToken = $"{Guid.NewGuid().ToString("N")}{Guid.NewGuid().ToString("N")}{Guid.NewGuid().ToString("N")}",
+				ExpiresAt = DateTime.Now.AddDays(60),
+			};
+
+			await _dbContext.RefreshTokens.AddAsync(refreshToken);
+			await _dbContext.SaveChangesAsync();
+
+			return refreshToken.JWTRefreshToken;
+		}
 	}
 }
