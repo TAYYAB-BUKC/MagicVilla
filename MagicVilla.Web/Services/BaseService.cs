@@ -2,6 +2,7 @@
 using MagicVilla.Web.Services.IServices;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using static MagicVilla.Utility.Configuration;
@@ -92,13 +93,7 @@ namespace MagicVilla.Web.Services
 					return httpRequest;
 				};
 
-				var token = _tokenProvider.GetToken();
-				if (withBearer && token is not null && !string.IsNullOrWhiteSpace(token.AccessToken))
-				{
-					client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-				}
-
-				var apiResponse = await client.SendAsync(httpRequestMessageFactory());
+				var apiResponse = await SendWithRefreshTokenAsync(client, httpRequestMessageFactory, withBearer);
 				var apiContent = await apiResponse.Content.ReadAsStringAsync();
 
 				try
@@ -138,6 +133,33 @@ namespace MagicVilla.Web.Services
 				var serializeResponse = JsonConvert.SerializeObject(response);
 				var finalReponse = JsonConvert.DeserializeObject<T>(serializeResponse);
 				return finalReponse;
+			}
+		}
+
+		private async Task<HttpResponseMessage> SendWithRefreshTokenAsync(HttpClient httpClient, Func<HttpRequestMessage> httpRequestMessage, bool withBearer)
+		{
+			var token = _tokenProvider.GetToken();
+			if (withBearer && token is not null && !string.IsNullOrWhiteSpace(token.AccessToken))
+			{
+				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+			}
+
+			try
+			{
+				var apiResponse = await httpClient.SendAsync(httpRequestMessage());
+				if (apiResponse.IsSuccessStatusCode)
+				{
+					return apiResponse;
+				}
+
+
+				// Check whether the RefreshToken is still valid or not 
+
+				return apiResponse;
+			}
+			catch (Exception ex)
+			{
+				throw;
 			}
 		}
 	}
