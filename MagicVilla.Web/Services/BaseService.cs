@@ -102,32 +102,50 @@ namespace MagicVilla.Web.Services
 				};
 
 				var apiResponse = await SendWithRefreshTokenAsync(client, httpRequestMessageFactory, withBearer);
-				var apiContent = await apiResponse.Content.ReadAsStringAsync();
+
+				var finalResponse = new Response()
+				{
+					IsSuccess = false
+				};
 
 				try
 				{
-					Response response = JsonConvert.DeserializeObject<Response>(apiContent);
-					if(apiResponse.StatusCode == HttpStatusCode.BadRequest)
+					var apiContent = await apiResponse.Content.ReadAsStringAsync();
+					finalResponse = JsonConvert.DeserializeObject<Response>(apiContent);
+					switch (apiResponse.StatusCode)
 					{
-						response.StatusCode = HttpStatusCode.BadRequest;
-						response.IsSuccess = false;
+						case HttpStatusCode.NotFound:
+							finalResponse.StatusCode = HttpStatusCode.NotFound;
+							finalResponse.ErrorMessages = new List<string> { "Not Found" };
+							break;
+						case HttpStatusCode.Forbidden:
+							finalResponse.StatusCode = HttpStatusCode.Forbidden;
+							finalResponse.ErrorMessages = new List<string> { "Access Denied" };
+							break;
+						case HttpStatusCode.Unauthorized:
+							finalResponse.StatusCode = HttpStatusCode.Unauthorized;
+							finalResponse.ErrorMessages = new List<string> { "Unauthorized" };
+							break;
+						case HttpStatusCode.InternalServerError:
+							finalResponse.StatusCode = HttpStatusCode.InternalServerError;
+							finalResponse.ErrorMessages = new List<string> { "Internal Server Error" };
+							break;
+						case HttpStatusCode.OK:
+							finalResponse.StatusCode = HttpStatusCode.OK;
+							finalResponse.IsSuccess = true;
+							break;
+						default:
+							break;
 					}
-
-					if (apiResponse.StatusCode == HttpStatusCode.NotFound)
-					{
-						response.StatusCode = HttpStatusCode.NotFound;
-						response.IsSuccess = false;
-					}
-
-					var serializeResponse = JsonConvert.SerializeObject(response);
-					var finalReponse = JsonConvert.DeserializeObject<T>(serializeResponse);
-					return finalReponse;
 				}
 				catch (Exception ex)
 				{
-					var response = JsonConvert.DeserializeObject<T>(apiContent);
-					return response;
+					finalResponse.ErrorMessages = new List<string>() { "Error Encountered", Convert.ToString(ex.Message) };
 				}
+
+				var serializeResponse = JsonConvert.SerializeObject(finalResponse);
+				var finalReponse = JsonConvert.DeserializeObject<T>(serializeResponse);
+				return finalReponse;
 			}
 			catch(Exception ex)
 			{
