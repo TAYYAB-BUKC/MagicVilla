@@ -1,3 +1,4 @@
+using MagicVilla.Web.CustomException;
 using MagicVilla.Web.Mappings;
 using MagicVilla.Web.Services;
 using MagicVilla.Web.Services.IServices;
@@ -6,7 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(f => f.Filters.Add(new AuthExceptionFilter()));
 builder.Services.AddAutoMapper(typeof(MappingConfiguration));
 
 builder.Services.AddHttpClient<IVillaService, VillaService>();
