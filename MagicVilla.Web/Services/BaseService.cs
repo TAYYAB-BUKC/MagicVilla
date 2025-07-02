@@ -6,9 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using static MagicVilla.Utility.Configuration;
@@ -162,13 +160,17 @@ namespace MagicVilla.Web.Services
 					return apiResponse;
 				}
 
-
 				// Check whether the RefreshToken is still valid or not 
-
-				return apiResponse;
+				await InvokeRefreshTokenEndpointAsync(httpClient, token);
+				return await httpClient.SendAsync(httpRequestMessage());
 			}
-			catch (Exception ex)
+			catch (HttpRequestException httpRequestException)
 			{
+				if(httpRequestException.StatusCode == HttpStatusCode.Unauthorized)
+				{
+					await InvokeRefreshTokenEndpointAsync(httpClient, token);
+					return await httpClient.SendAsync(httpRequestMessage());
+				}
 				throw;
 			}
 		}
