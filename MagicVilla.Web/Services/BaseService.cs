@@ -201,7 +201,6 @@ namespace MagicVilla.Web.Services
 					httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", data.AccessToken);
 					await SignInUserWithNewTokensAsync(data);
 				}
-
 			}
 			catch (Exception ex)
 			{
@@ -212,7 +211,19 @@ namespace MagicVilla.Web.Services
 		private async Task SignInUserWithNewTokensAsync(LoginResponseDTO responseDTO)
 		{
 			// Sign in user with new Tokens
+			var tokenHandler = new JwtSecurityTokenHandler();
+			var token = tokenHandler.ReadJwtToken(responseDTO.AccessToken);
 
+			_tokenProvider.SetToken(responseDTO);
+			_httpContextAccessor.HttpContext.Session.SetString(SessionUserId, token.Claims.FirstOrDefault(c => c.Type == "nameid").Value);
+			_httpContextAccessor.HttpContext.Session.SetString(SessionUserName, token.Claims.FirstOrDefault(c => c.Type == "unique_name").Value);
+
+			var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+			identity.AddClaim(new Claim(ClaimTypes.Name, token.Claims.FirstOrDefault(c => c.Type == "unique_name").Value));
+			identity.AddClaim(new Claim(ClaimTypes.Role, token.Claims.FirstOrDefault(c => c.Type == "role").Value));
+
+			var principal = new ClaimsPrincipal(identity);
+			await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 		}
 	}
 }
