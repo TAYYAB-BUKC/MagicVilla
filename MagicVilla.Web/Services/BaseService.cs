@@ -1,4 +1,5 @@
-﻿using MagicVilla.Web.Models;
+﻿using MagicVilla.Web.CustomException;
+using MagicVilla.Web.Models;
 using MagicVilla.Web.Models.DTOs;
 using MagicVilla.Web.Services.IServices;
 using Microsoft.AspNetCore.Authentication;
@@ -147,6 +148,10 @@ namespace MagicVilla.Web.Services
 				var finalReponse = JsonConvert.DeserializeObject<T>(serializeResponse);
 				return finalReponse;
 			}
+			catch (AuthException)
+			{
+				throw;
+			}
 			catch(Exception ex)
 			{
 				var response = new Response
@@ -183,12 +188,23 @@ namespace MagicVilla.Web.Services
 
 				return apiResponse;
 			}
+			catch (AuthException)
+			{
+				throw;
+			}
 			catch (HttpRequestException httpRequestException)
 			{
-				if(httpRequestException.StatusCode == HttpStatusCode.Unauthorized)
+				try
 				{
-					await InvokeRefreshTokenEndpointAsync(httpClient, token);
-					return await httpClient.SendAsync(httpRequestMessage());
+					if (httpRequestException.StatusCode == HttpStatusCode.Unauthorized)
+					{
+						await InvokeRefreshTokenEndpointAsync(httpClient, token);
+						return await httpClient.SendAsync(httpRequestMessage());
+					}
+				}
+				catch (AuthException)
+				{
+					throw;
 				}
 				throw;
 			}
@@ -212,6 +228,7 @@ namespace MagicVilla.Web.Services
 				{
 					await _httpContextAccessor.HttpContext.SignOutAsync();
 					_tokenProvider.ClearToken();
+					throw new AuthException();
 				}
 
 				var contentData = JsonConvert.SerializeObject(apiResponse.Data);
