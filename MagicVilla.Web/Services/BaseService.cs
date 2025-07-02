@@ -1,9 +1,15 @@
 ﻿using MagicVilla.Web.Models;
+using MagicVilla.Web.Models.DTOs;
 using MagicVilla.Web.Services.IServices;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Newtonsoft.Json;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 using static MagicVilla.Utility.Configuration;
 
@@ -14,12 +20,16 @@ namespace MagicVilla.Web.Services
 		public Response Response { get; set; }
 		private readonly IHttpClientFactory _httpClient;
 		private readonly ITokenProvider _tokenProvider;
+		private readonly string BASE_URL;
+		private readonly IHttpContextAccessor _httpContextAccessor;
 
-		public BaseService(IHttpClientFactory httpClient, ITokenProvider tokenProvider)
+		public BaseService(IHttpClientFactory httpClient, ITokenProvider tokenProvider, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
 		{
 			Response = new();
 			_httpClient = httpClient;
 			_tokenProvider = tokenProvider;
+			BASE_URL = configuration.GetValue<string>("ServiceURLs:VillaAPI");
+			_httpContextAccessor = httpContextAccessor;
 		}
 
 		public async Task<T> SendAsync<T>(Request request, bool withBearer = true)
@@ -161,6 +171,48 @@ namespace MagicVilla.Web.Services
 			{
 				throw;
 			}
+		}
+
+		private async Task InvokeRefreshTokenEndpointAsync(HttpClient httpClient, LoginResponseDTO responseDTO)
+		{
+			HttpRequestMessage httpRequest = new HttpRequestMessage();
+			httpRequest.Method = HttpMethod.Post;
+			httpRequest.Headers.Add("accept", "application/json");
+			httpRequest.RequestUri = new Uri($"{BASE_URL}/api/{ApiVersion}/userauth/refresh");
+			httpRequest.Content = new StringContent(JsonConvert.SerializeObject(responseDTO), Encoding.UTF8, "application/json");
+
+			try
+			{
+				var response = await httpClient.SendAsync(httpRequest);
+				var responseContent = await response.Content.ReadAsStringAsync();
+				var apiResponse = JsonConvert.DeserializeObject<Response>(responseContent);
+
+				if (apiResponse is null || !apiResponse.IsSuccess)
+				{
+					await _httpContextAccessor.HttpContext.SignOutAsync();
+					_tokenProvider.ClearToken();
+				}
+
+				var contentData = JsonConvert.SerializeObject(apiResponse.Data);
+				var data = JsonConvert.DeserializeObject<LoginResponseDTO>(contentData);
+
+				if(data is not null && !string.IsNullOrWhiteSpace(data.AccessToken))
+				{
+					httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", data.AccessToken);
+					await SignInUserWithNewTokensAsync(data);
+				}
+
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
+
+		private async Task SignInUserWithNewTokensAsync(LoginResponseDTO responseDTO)
+		{
+			// Sign in user with new Tokens
+
 		}
 	}
 }
