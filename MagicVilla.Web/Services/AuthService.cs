@@ -36,5 +36,15 @@ namespace MagicVilla.Web.Services
 				Data = requestDTO
 			}, false);
 		}
+
+		public async Task<T> LogOutAsync<T>(LoginResponseDTO requestDTO)
+		{
+			return await _baseService.SendAsync<T>(new Request()
+			{
+				RequestType = RequestType.POST,
+				URL = $"{BASE_URL}/api/{ApiVersion}/UserAuth/revoke",
+				Data = requestDTO
+			});
+		}
 	}
 }
