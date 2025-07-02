@@ -9,5 +9,6 @@ namespace MagicVilla.API.Repository.Interfaces
 		Task<LoginResponseDTO> Login(LoginRequestDTO requestDTO);
 		Task<ApplicationUser> Regitser(RegistrationRequestDTO requestDTO);
 		Task<LoginResponseDTO> GenerateTokens(LoginResponseDTO requestDTO);
+		Task RevokeRefreshToken(LoginResponseDTO requestDTO);
 	}
 }

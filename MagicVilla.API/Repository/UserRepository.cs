@@ -235,6 +235,23 @@ namespace MagicVilla.API.Repository
 			return refreshToken.JWTRefreshToken;
 		}
 
+		public async Task RevokeRefreshToken(LoginResponseDTO requestDTO)
+		{
+			var existingRefreshToken = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.JWTRefreshToken == requestDTO.RefreshToken);
+			if(existingRefreshToken is null)
+			{
+				return;
+			}
+
+			bool istokenValid = GetAccessTokenData(requestDTO.AccessToken, existingRefreshToken.UserId, existingRefreshToken.JWTTokenId);
+			if(!istokenValid)
+			{
+				return;
+			}
+
+			await MarkAllTokensInChainAsInvalid(existingRefreshToken);
+		}
+
 		private async Task MarkTokenAsInvalid(RefreshToken existingRefreshToken)
 		{
 			existingRefreshToken.IsValid = false;
