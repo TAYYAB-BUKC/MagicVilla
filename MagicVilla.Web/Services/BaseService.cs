@@ -155,14 +155,15 @@ namespace MagicVilla.Web.Services
 			try
 			{
 				var apiResponse = await httpClient.SendAsync(httpRequestMessage());
-				if (apiResponse.IsSuccessStatusCode)
-				{
-					return apiResponse;
-				}
 
 				// Check whether the RefreshToken is still valid or not 
-				await InvokeRefreshTokenEndpointAsync(httpClient, token);
-				return await httpClient.SendAsync(httpRequestMessage());
+				if (apiResponse.StatusCode == HttpStatusCode.Unauthorized)
+				{
+					await InvokeRefreshTokenEndpointAsync(httpClient, token);
+					return await httpClient.SendAsync(httpRequestMessage());
+				}
+
+				return apiResponse;
 			}
 			catch (HttpRequestException httpRequestException)
 			{
