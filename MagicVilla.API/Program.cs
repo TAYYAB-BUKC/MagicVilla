@@ -1,4 +1,5 @@
 using MagicVilla.API.Data;
+using MagicVilla.API.ExceptionFilters;
 using MagicVilla.API.Logging;
 using MagicVilla.API.Mappings;
 using MagicVilla.API.Models;
@@ -35,6 +36,7 @@ builder.Services.AddControllers(options =>
     {
         Duration = CacheDuration
     });
+    options.Filters.Add<CustomExceptionFilter>();
 }).AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
