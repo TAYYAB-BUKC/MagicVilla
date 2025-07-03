@@ -106,6 +106,8 @@ if (app.Environment.IsDevelopment())
 	});
 }
 
+app.UseExceptionHandler("/api/ErrorHandler/ProcessError");
+
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
