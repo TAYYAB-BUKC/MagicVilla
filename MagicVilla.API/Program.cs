@@ -18,6 +18,7 @@ using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
 using static MagicVilla.Utility.Configuration;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -126,13 +127,25 @@ app.UseExceptionHandler(error =>
         var feature = context.Features.Get<IExceptionHandlerFeature>();
         if (feature is not null)
         {
-            await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+            if (app.Environment.IsDevelopment())
             {
-                From = "Program.cs",
-                StatusCode = 500,
-                Title = feature.Error.Message,
-                Details = feature.Error.StackTrace,
-            }));
+				await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+				{
+					From = "Program.cs",
+					StatusCode = 500,
+					ErrorMessage = feature.Error.Message,
+					StackTrace = feature.Error.StackTrace,
+				}));
+            }
+            else
+            {
+				await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+				{
+					StatusCode = 500,
+					Title = feature.Error.Message,
+					Details = feature.Error.StackTrace,
+				}));
+			}
         }
     });
 });
