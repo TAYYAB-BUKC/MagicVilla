@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -6,6 +7,12 @@ namespace MagicVilla.API.SwaggerOptions
 {
 	public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
 	{
+		private readonly IApiVersionDescriptionProvider _apiVersionDescriptionProvider;
+		public ConfigureSwaggerOptions(IApiVersionDescriptionProvider apiVersionDescriptionProvider)
+		{
+			_apiVersionDescriptionProvider = apiVersionDescriptionProvider;
+		}
+
 		public void Configure(SwaggerGenOptions options)
 		{
 			options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -36,43 +43,27 @@ namespace MagicVilla.API.SwaggerOptions
 				}
 			});
 
-			options.SwaggerDoc("v1", new OpenApiInfo()
+			foreach (var version in _apiVersionDescriptionProvider.ApiVersionDescriptions)
 			{
-				Version = "v1.0",
-				Title = "Magic Villa v1.0",
-				Description = "API version 1.0 to manage villas",
-				TermsOfService = new Uri("https://example.com/terms"),
-				Contact = new OpenApiContact()
+				options.SwaggerDoc(version.GroupName, new OpenApiInfo()
 				{
-					Name = "Tayyab Arsalan",
-					Email = "write2tayyabarsalan+linkedin@gmail.com",
-					Url = new Uri("https://example.com/tayyabarsalan")
-				},
-				License = new OpenApiLicense()
-				{
-					Name = "Example License",
-					Url = new Uri("https://example.com/license")
-				}
-			});
-
-			options.SwaggerDoc("v2", new OpenApiInfo()
-			{
-				Version = "v2.0",
-				Title = "Magic Villa v2.0",
-				Description = "API version 2.0 to manage villas",
-				TermsOfService = new Uri("https://example.com/terms"),
-				Contact = new OpenApiContact()
-				{
-					Name = "Tayyab Arsalan",
-					Email = "write2tayyabarsalan+linkedin@gmail.com",
-					Url = new Uri("https://example.com/tayyabarsalan")
-				},
-				License = new OpenApiLicense()
-				{
-					Name = "Example License",
-					Url = new Uri("https://example.com/license")
-				}
-			});
+					Version = $"v{version.ApiVersion.ToString()}",
+					Title = $"Magic Villa v{version.ApiVersion.ToString()}",
+					Description = $"API version {version.ApiVersion.ToString()} to manage villas",
+					TermsOfService = new Uri("https://example.com/terms"),
+					Contact = new OpenApiContact()
+					{
+						Name = "Tayyab Arsalan",
+						Email = "write2tayyabarsalan+linkedin@gmail.com",
+						Url = new Uri("https://example.com/tayyabarsalan")
+					},
+					License = new OpenApiLicense()
+					{
+						Name = "Example License",
+						Url = new Uri("https://example.com/license")
+					}
+				});
+			}
 		}
 	}
 }
