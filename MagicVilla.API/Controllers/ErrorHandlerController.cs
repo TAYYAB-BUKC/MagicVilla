@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MagicVilla.API.Controllers
 {
@@ -9,9 +10,21 @@ namespace MagicVilla.API.Controllers
 	public class ErrorHandlerController : ControllerBase
 	{
 		[Route("ProcessError")]
-		public IActionResult ProcessError()
+		public IActionResult ProcessError([FromServices] IHostEnvironment hostEnvironment, [FromServices] IHttpContextAccessor httpContextAccessor)
 		{
-			return Problem();
+			if (hostEnvironment.IsDevelopment())
+			{
+				var feature = httpContextAccessor?.HttpContext?.Features.Get<IExceptionHandlerFeature>();
+				return Problem(
+					detail: feature.Error.StackTrace,
+					title: feature.Error.Message,
+					instance: hostEnvironment.EnvironmentName
+					);
+			}
+			else
+			{
+				return Problem();
+			}
 		}
 	}
 }
