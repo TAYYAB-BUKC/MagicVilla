@@ -13,6 +13,7 @@ namespace MagicVilla.API.ExceptionFilters
 				{
 					StatusCode = 500
 				};
+				context.ExceptionHandled = true;
 			}
 		}
 
