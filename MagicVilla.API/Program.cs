@@ -1,5 +1,6 @@
 using MagicVilla.API.Data;
 using MagicVilla.API.ExceptionFilters;
+using MagicVilla.API.Extensions;
 using MagicVilla.API.Logging;
 using MagicVilla.API.Mappings;
 using MagicVilla.API.Models;
@@ -118,37 +119,7 @@ if (app.Environment.IsDevelopment())
 
 //app.UseExceptionHandler("/api/ErrorHandler/ProcessError");
 
-app.UseExceptionHandler(error =>
-{
-    error.Run(async context =>
-    {
-        context.Response.StatusCode = 500;
-        context.Response.ContentType = "application/json";
-        var feature = context.Features.Get<IExceptionHandlerFeature>();
-        if (feature is not null)
-        {
-            if (app.Environment.IsDevelopment())
-            {
-				await context.Response.WriteAsync(JsonConvert.SerializeObject(new
-				{
-					From = "Program.cs",
-					StatusCode = 500,
-					ErrorMessage = feature.Error.Message,
-					StackTrace = feature.Error.StackTrace,
-				}));
-            }
-            else
-            {
-				await context.Response.WriteAsync(JsonConvert.SerializeObject(new
-				{
-					StatusCode = 500,
-					Title = feature.Error.Message,
-					Details = feature.Error.StackTrace,
-				}));
-			}
-        }
-    });
-});
+app.UseCustomExceptionHandler(app.Environment.IsDevelopment());
 
 app.UseStaticFiles();
 
