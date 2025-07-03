@@ -104,6 +104,8 @@ namespace MagicVilla.API.Repository
 			{
 				Subject = new ClaimsIdentity(claims),
 				Expires = DateTime.Now.AddMinutes(1),
+				Issuer = "https://localhost:7001",
+				Audience = "https://localhost:7002",
 				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
 			};
 
