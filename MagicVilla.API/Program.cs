@@ -93,6 +93,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 var app = builder.Build();
 
+ApplyPendingMigrations();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -115,3 +117,22 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+void ApplyPendingMigrations()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        if(_dbContext is null)
+        {
+            return;
+        }
+
+        if(_dbContext.Database.GetPendingMigrations().Count() > 0)
+        {
+            _dbContext.Database.Migrate();
+        }
+    }
+}
