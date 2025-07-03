@@ -18,13 +18,27 @@ namespace MagicVilla.API.Extensions
 					{
 						if (IsDevelopmentEnvironment)
 						{
-							await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+							if (feature.Error is BadImageFormatException)
 							{
-								From = "Program.cs",
-								StatusCode = 500,
-								ErrorMessage = feature.Error.Message,
-								StackTrace = feature.Error.StackTrace,
-							}));
+								await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+								{
+									From = "Program.cs",
+									Title = "BadImageException",
+									StatusCode = 550,
+									ErrorMessage = feature.Error.Message,
+									StackTrace = feature.Error.StackTrace
+								}));
+							}
+							else
+							{
+								await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+								{
+									From = "Program.cs",
+									StatusCode = 500,
+									ErrorMessage = feature.Error.Message,
+									StackTrace = feature.Error.StackTrace,
+								}));
+							}
 						}
 						else
 						{
