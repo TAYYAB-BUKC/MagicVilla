@@ -98,5 +98,11 @@ namespace MagicVilla.API.Controllers
 			_response.ErrorMessages?.Add("Invalid token");
 			return BadRequest(_response);
 		}
+
+		[HttpGet("error")]
+		public IActionResult Error()
+		{
+			throw new FileNotFoundException();
+		}
 	}
 }
