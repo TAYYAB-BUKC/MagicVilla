@@ -99,6 +99,10 @@ namespace MagicVilla.API.Repository
 			claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
 			claims.Add(new Claim(JwtRegisteredClaimNames.Jti, tokenID));
 			claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()));
+			
+			// You can multiple audiences in this way
+			//claims.Add(new Claim(JwtRegisteredClaimNames.Aud, "https://localhost:7001"));
+			//claims.Add(new Claim(JwtRegisteredClaimNames.Aud, "https://localhost:7002"));
 
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
