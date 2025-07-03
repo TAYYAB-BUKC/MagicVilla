@@ -37,7 +37,13 @@ builder.Services.AddControllers(options =>
         Duration = CacheDuration
     });
     options.Filters.Add<CustomExceptionFilter>();
-}).AddNewtonsoftJson();
+}).AddNewtonsoftJson().ConfigureApiBehaviorOptions(options =>
+{
+    options.ClientErrorMapping[StatusCodes.Status500InternalServerError] = new ClientErrorData()
+    {
+        Link = "https://fake.com/500Error"
+    };
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
