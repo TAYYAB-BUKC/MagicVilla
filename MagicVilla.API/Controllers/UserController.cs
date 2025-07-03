@@ -99,10 +99,16 @@ namespace MagicVilla.API.Controllers
 			return BadRequest(_response);
 		}
 
-		[HttpGet("error")]
-		public IActionResult Error()
+		[HttpGet("fileerror")]
+		public IActionResult FileError()
 		{
 			throw new FileNotFoundException();
+		}
+
+		[HttpGet("imageerror")]
+		public IActionResult ImageError()
+		{
+			throw new BadImageFormatException("Fake Bad Image Exception");
 		}
 	}
 }
