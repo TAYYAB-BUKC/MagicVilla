@@ -5,6 +5,7 @@ namespace MagicVilla.API.Controllers
 	[Route("api/ErrorHandler")]
 	[ApiController]
 	[ApiVersionNeutral]
+	[ApiExplorerSettings(IgnoreApi = true)]
 	public class ErrorHandlerController : ControllerBase
 	{
 		[Route("ProcessError")]
