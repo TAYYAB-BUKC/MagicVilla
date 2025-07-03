@@ -7,12 +7,13 @@ using MagicVilla.API.Repository;
 using MagicVilla.API.Repository.Interfaces;
 using MagicVilla.API.SwaggerOptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
@@ -114,7 +115,27 @@ if (app.Environment.IsDevelopment())
 	});
 }
 
-app.UseExceptionHandler("/api/ErrorHandler/ProcessError");
+//app.UseExceptionHandler("/api/ErrorHandler/ProcessError");
+
+app.UseExceptionHandler(error =>
+{
+    error.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        var feature = context.Features.Get<IExceptionHandlerFeature>();
+        if (feature is not null)
+        {
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+            {
+                From = "Program.cs",
+                StatusCode = 500,
+                Title = feature.Error.Message,
+                Details = feature.Error.StackTrace,
+            }));
+        }
+    });
+});
 
 app.UseStaticFiles();
 
