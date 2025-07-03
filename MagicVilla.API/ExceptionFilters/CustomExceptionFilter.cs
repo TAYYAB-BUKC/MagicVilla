@@ -18,7 +18,7 @@ namespace MagicVilla.API.ExceptionFilters
 
 		public void OnActionExecuting(ActionExecutingContext context)
 		{
-			throw new NotImplementedException();
+
 		}
 	}
 }
